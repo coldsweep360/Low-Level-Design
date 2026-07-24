@@ -37,3 +37,11 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+.idea/
+
+**/notes/**
+
+# Repository-local agent instructions should never be committed.
+AGENTS.md
+agents.md
