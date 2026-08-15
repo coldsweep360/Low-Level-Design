@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Collections Lab</title>
+<style>
+:root{
+  --bg:#080b12;
+  --bg-elevated:#0c1018;
+  --card:#111722;
+  --card-hover:#141b28;
+  --border:#202938;
+  --border-strong:#2c3850;
+  --text:#e7ecf5;
+  --text-dim:#9aa7bd;
+  --text-faint:#5d6b84;
+  --accent:#e8763a;
+  --accent-dim:#7a4324;
+  --accent-glow:rgba(232,118,58,0.35);
+  --blue:#6f8dfb;
+  --purple:#a684f7;
+  --success:#3ecf8e;
+  --warning:#e8c547;
+  --danger:#f0665f;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius:14px;
+  --radius-sm:8px;
+  --shadow-card:0 1px 0 rgba(255,255,255,0.02) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(232,118,58,0.08), transparent 60%),
+    radial-gradient(1000px 500px at 100% 0%, rgba(111,141,251,0.06), transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent-glow);}
+a{color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+code,pre{font-family:var(--mono);}
+h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-0.02em;}
+p{margin:0;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;}
+.container{max-width:1180px;margin:0 auto;padding:0 24px;}
+.section{padding:96px 0;border-top:1px solid var(--border);}
+.section:first-of-type{border-top:none;}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:14px;
+}
+.section-head{max-width:640px;margin-bottom:48px;}
+.section-head h2{font-size:34px;margin-bottom:12px;}
+.section-head p{color:var(--text-dim);font-size:16px;}
+
+/* ---------- NAV ---------- */
+header.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(8,11,18,0.82);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  max-width:1180px;margin:0 auto;padding:0 24px;
+  height:64px;display:flex;align-items:center;justify-content:space-between;gap:20px;
+}
+.logo{
+  font-weight:800;font-size:16px;letter-spacing:-0.01em;
+  display:flex;align-items:center;gap:8px;white-space:nowrap;
+  background:none;border:none;color:var(--text);padding:0;
+}
+.nav-links{display:flex;gap:4px;list-style:none;margin:0;padding:0;flex:1;justify-content:center;}
+.nav-links button{
+  background:none;border:none;color:var(--text-dim);font-size:14px;font-weight:600;
+  padding:8px 14px;border-radius:8px;transition:all .15s ease;
+}
+.nav-links button:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+.nav-links button.active{color:var(--accent);background:rgba(232,118,58,0.1);}
+.nav-right{display:flex;align-items:center;gap:10px;white-space:nowrap;}
+.xp-pill{
+  display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;
+  background:linear-gradient(135deg, rgba(232,118,58,0.16), rgba(232,118,58,0.06));
+  border:1px solid rgba(232,118,58,0.3);color:var(--accent);
+  padding:6px 12px;border-radius:999px;
+  transition:transform .2s ease;
+}
+.xp-pill.bump{animation:xpBump .4s ease;}
+@keyframes xpBump{0%{transform:scale(1);}40%{transform:scale(1.12);}100%{transform:scale(1);}}
+.progress-pill{
+  display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-dim);
+  border:1px solid var(--border);padding:6px 12px;border-radius:999px;
+}
+.progress-pill .bar-track{width:56px;height:5px;border-radius:99px;background:var(--border);overflow:hidden;}
+.progress-pill .bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:99px;transition:width .5s ease;}
+.nav-toggle{display:none;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text);width:38px;height:38px;align-items:center;justify-content:center;}
+
+/* ---------- BUTTONS ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 20px;border-radius:10px;font-weight:700;font-size:14px;
+  border:1px solid transparent;transition:all .15s ease;white-space:nowrap;
+}
+.btn-primary{background:var(--accent);color:#140a04;box-shadow:0 4px 14px -4px var(--accent-glow);}
+.btn-primary:hover{background:#f18248;transform:translateY(-1px);}
+.btn-ghost{background:rgba(255,255,255,0.02);border-color:var(--border-strong);color:var(--text);}
+.btn-ghost:hover{background:rgba(255,255,255,0.06);border-color:var(--text-faint);}
+.btn-sm{padding:7px 12px;font-size:12.5px;border-radius:8px;}
+.btn:disabled{opacity:0.45;cursor:not-allowed;transform:none !important;}
+.btn-success{background:rgba(62,207,142,0.15);color:var(--success);border-color:rgba(62,207,142,0.35);}
+.btn-danger{background:rgba(240,102,95,0.12);color:var(--danger);border-color:rgba(240,102,95,0.3);}
+
+/* ---------- HERO ---------- */
+.hero{padding:88px 0 60px;}
+.hero-grid{display:grid;grid-template-columns:1.15fr 0.85fr;gap:56px;align-items:center;}
+.hero h1{font-size:52px;line-height:1.05;margin-bottom:18px;}
+.hero h1 .accent{color:var(--accent);}
+.hero p.lead{font-size:18px;color:var(--text-dim);max-width:480px;margin-bottom:32px;}
+.hero-actions{display:flex;gap:12px;margin-bottom:44px;flex-wrap:wrap;}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border);padding-top:28px;}
+.hero-stats div{border-right:1px solid var(--border);padding-right:16px;}
+.hero-stats div:last-child{border-right:none;}
+.hero-stats .num{font-size:26px;font-weight:800;color:var(--text);font-family:var(--mono);}
+.hero-stats .label{font-size:12.5px;color:var(--text-faint);margin-top:4px;}
+
+.progress-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:26px;box-shadow:var(--shadow-card);
+}
+.progress-card h3{font-size:15px;margin-bottom:18px;color:var(--text-dim);font-weight:700;}
+.big-bar-track{height:10px;border-radius:99px;background:var(--bg-elevated);overflow:hidden;border:1px solid var(--border);}
+.big-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--purple));transition:width .6s cubic-bezier(.2,.8,.2,1);}
+.progress-card .pct{font-family:var(--mono);font-size:30px;font-weight:800;margin:14px 0 4px;}
+.progress-card .sub{font-size:13px;color:var(--text-faint);margin-bottom:20px;}
+.progress-card .xp-row{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid var(--border);}
+.progress-card .xp-row .xp-num{font-family:var(--mono);font-weight:800;color:var(--accent);font-size:18px;}
+
+/* ---------- COLLECTIONS GRID ---------- */
+.search-row{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;align-items:center;}
+.search-box{
+  flex:1;min-width:220px;display:flex;align-items:center;gap:10px;
+  background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;
+}
+.search-box input{background:none;border:none;color:var(--text);font-size:14px;width:100%;outline:none;}
+.search-box input::placeholder{color:var(--text-faint);}
+.no-results{color:var(--text-faint);font-size:14px;padding:20px 0;display:none;}
+
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;}
+.col-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px;cursor:pointer;transition:all .18s ease;position:relative;text-align:left;
+  display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-card);
+}
+.col-card:hover{transform:translateY(-3px);border-color:var(--border-strong);background:var(--card-hover);box-shadow:0 12px 30px -14px rgba(232,118,58,0.25);}
+.col-card.completed{border-color:rgba(62,207,142,0.4);}
+.col-card .top-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.col-card .icon{font-size:22px;}
+.badge{
+  font-size:10.5px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;
+  padding:3px 9px;border-radius:999px;border:1px solid var(--border-strong);color:var(--text-dim);
+}
+.badge.list{color:var(--blue);border-color:rgba(111,141,251,0.35);background:rgba(111,141,251,0.08);}
+.badge.set{color:var(--purple);border-color:rgba(166,132,247,0.35);background:rgba(166,132,247,0.08);}
+.badge.map{color:var(--accent);border-color:rgba(232,118,58,0.35);background:rgba(232,118,58,0.08);}
+.badge.queue{color:var(--warning);border-color:rgba(232,197,71,0.35);background:rgba(232,197,71,0.08);}
+.badge.other{color:var(--success);border-color:rgba(62,207,142,0.35);background:rgba(62,207,142,0.08);}
+.col-card h4{font-size:17px;}
+.col-card .desc{font-size:13.5px;color:var(--text-dim);}
+.col-card .meta{display:flex;gap:14px;font-size:12px;color:var(--text-faint);margin-top:4px;}
+.col-card .meta b{color:var(--text-dim);font-family:var(--mono);}
+.col-card .taxonomy{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px;}
+.tax-chip{
+  font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 8px;border-radius:999px;border:1px solid var(--border-strong);
+  color:var(--text-dim);background:rgba(255,255,255,0.03);
+}
+.tax-chip.interface{color:var(--blue);border-color:rgba(111,141,251,0.32);background:rgba(111,141,251,0.08);}
+.tax-chip.class{color:var(--accent);border-color:rgba(232,118,58,0.32);background:rgba(232,118,58,0.08);}
+.relation-box{
+  background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;font-size:13.5px;color:var(--text-dim);display:grid;gap:8px;
+}
+.relation-row b{color:var(--text);font-family:var(--mono);font-size:12px;margin-right:8px;}
+.relation-row span{color:var(--text-dim);}
+.done-check{position:absolute;top:16px;right:16px;color:var(--success);font-size:16px;display:none;}
+.col-card.completed .done-check{display:block;}
+
+/* ---------- MODAL ---------- */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(4,6,10,0.72);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;
+}
+.modal-overlay.open{display:flex;animation:fadeIn .18s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal{
+  background:var(--bg-elevated);border:1px solid var(--border-strong);border-radius:16px;
+  max-width:640px;width:100%;max-height:86vh;overflow-y:auto;padding:32px;
+  animation:modalIn .22s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.modal-head h2{font-size:24px;font-family:var(--mono);letter-spacing:-0.01em;}
+.modal-close{background:none;border:1px solid var(--border);color:var(--text-dim);width:32px;height:32px;border-radius:8px;font-size:16px;line-height:1;flex-shrink:0;}
+.modal-close:hover{color:var(--text);border-color:var(--border-strong);}
+.modal-desc{color:var(--text-dim);font-size:14px;margin:10px 0 22px;}
+.modal-section-title{font-size:11.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);margin:22px 0 10px;}
+.usewhen-box{background:rgba(232,118,58,0.06);border:1px solid rgba(232,118,58,0.25);border-radius:10px;padding:14px 16px;font-size:13.5px;color:var(--text);}
+.method-row{
+  display:grid;grid-template-columns:1.1fr 1.4fr auto;gap:12px;align-items:center;
+  padding:11px 0;border-bottom:1px solid var(--border);font-size:13.5px;
+}
+.method-row:last-child{border-bottom:none;}
+.method-row code{color:var(--accent);font-size:13px;}
+.method-row .m-desc{color:var(--text-dim);}
+.method-row .m-o{font-family:var(--mono);font-size:12px;color:var(--blue);background:rgba(111,141,251,0.08);padding:3px 8px;border-radius:6px;border:1px solid rgba(111,141,251,0.25);justify-self:end;white-space:nowrap;}
+.prop-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.prop-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.prop-box .k{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.prop-box .v{font-size:13px;font-weight:700;}
+.modal-actions{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;}
+.pipeline{display:flex;flex-direction:column;align-items:center;gap:4px;font-family:var(--mono);font-size:13px;margin:14px 0;}
+.pipeline .pstep{background:var(--card);border:1px solid var(--border);padding:8px 16px;border-radius:8px;color:var(--text);}
+.pipeline .parrow{color:var(--text-faint);}
+.code-block{
+  background:#0a0d14;border:1px solid var(--border);border-radius:10px;padding:16px;
+  font-family:var(--mono);font-size:12.8px;color:#c9d4e8;overflow-x:auto;line-height:1.6;
+}
+.code-block .kw{color:var(--purple);}
+.code-block .fn{color:var(--blue);}
+.code-block .str{color:var(--success);}
+.code-block .cm{color:var(--text-faint);}
+
+/* ---------- VISUALIZER ---------- */
+.viz-shell{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;box-shadow:var(--shadow-card);
+}
+.viz-top{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:11.5px;color:var(--text-faint);font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+.field select,.field input{
+  background:var(--bg-elevated);border:1px solid var(--border-strong);color:var(--text);
+  padding:10px 12px;border-radius:9px;font-size:14px;min-width:140px;outline:none;font-family:var(--sans);
+}
+.field select:focus,.field input:focus{border-color:var(--accent);}
+.viz-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+.viz-explainer{
+  font-size:13.5px;color:var(--text-dim);background:rgba(111,141,251,0.06);border:1px solid rgba(111,141,251,0.2);
+  border-radius:10px;padding:12px 16px;margin-bottom:22px;
+}
+.viz-stage{
+  background:var(--bg-elevated);border:1px dashed var(--border-strong);border-radius:12px;
+  min-height:160px;padding:26px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;
+}
+.viz-empty{color:var(--text-faint);font-size:13.5px;}
+.viz-item{
+  background:var(--card);border:2px solid var(--border-strong);border-radius:10px;
+  padding:10px 14px;font-family:var(--mono);font-weight:700;font-size:14px;position:relative;
+  animation:popIn .25s cubic-bezier(.2,.8,.2,1);transition:all .25s ease;text-align:center;
+}
+@keyframes popIn{from{opacity:0;transform:scale(0.6) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+@keyframes popOut{to{opacity:0;transform:scale(0.5);}}
+.viz-item.removing{animation:popOut .3s ease forwards;}
+.viz-item .idx{position:absolute;top:-9px;left:8px;font-size:9.5px;color:var(--text-faint);background:var(--bg-elevated);padding:0 5px;}
+.viz-item.found{border-color:var(--success);box-shadow:0 0 0 3px rgba(62,207,142,0.2);animation:pulseFound .8s ease 2;}
+@keyframes pulseFound{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.viz-item.dup-flash{border-color:var(--danger);animation:shake .4s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+.viz-item.head-tag::before{content:'FRONT';position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:9px;color:var(--warning);letter-spacing:.05em;}
+.viz-item.tail-tag::after{content:'REAR';position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-size:9px;color:var(--warning);letter-spacing:.05em;}
+.viz-map-row{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:360px;}
+.viz-map-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13.5px;}
+.viz-map-table th{text-align:left;color:var(--text-faint);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;border-bottom:1px solid var(--border);}
+.viz-map-table td{padding:9px 10px;border-bottom:1px solid var(--border);}
+.viz-map-table tr.flash td{background:rgba(232,118,58,0.1);}
+.linked-arrow{color:var(--text-faint);font-family:var(--mono);align-self:center;}
+
+.viz-bottom{display:grid;grid-template-columns:1.3fr 1fr;gap:20px;}
+@media(max-width:860px){.viz-bottom{grid-template-columns:1fr;}}
+.viz-log{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:14px 16px;max-height:200px;overflow-y:auto;}
+.viz-log .log-entry{font-family:var(--mono);font-size:12px;padding:6px 0;border-bottom:1px solid var(--border);color:var(--text-dim);}
+.viz-log .log-entry:last-child{border-bottom:none;}
+.viz-log .log-entry .t{color:var(--text-faint);margin-right:8px;}
+.viz-log .log-empty{color:var(--text-faint);font-size:12.5px;}
+.viz-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat-box{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.stat-box .k{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.stat-box .v{font-size:18px;font-weight:800;font-family:var(--mono);}
+
+/* toast */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:2000;display:flex;flex-direction:column;gap:10px;max-width:340px;}
+.toast{
+  background:var(--bg-elevated);border:1px solid var(--border-strong);border-radius:10px;
+  padding:13px 16px;font-size:13.5px;box-shadow:0 12px 30px -10px rgba(0,0,0,0.6);
+  animation:toastIn .25s cubic-bezier(.2,.8,.2,1);display:flex;gap:10px;align-items:flex-start;
+}
+.toast.success{border-color:rgba(62,207,142,0.4);}
+.toast.error{border-color:rgba(240,102,95,0.4);}
+.toast.info{border-color:rgba(111,141,251,0.4);}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+.toast.leaving{animation:toastOut .2s ease forwards;}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px);}}
+
+/* ---------- PRACTICE ---------- */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.chip{
+  background:var(--card);border:1px solid var(--border);color:var(--text-dim);
+  padding:7px 14px;border-radius:999px;font-size:12.5px;font-weight:700;
+}
+.chip.active{background:rgba(232,118,58,0.14);border-color:var(--accent);color:var(--accent);}
+.q-list{display:flex;flex-direction:column;gap:14px;}
+.q-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow-card);}
+.q-card.solved{border-color:rgba(62,207,142,0.35);}
+.q-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.q-num{font-family:var(--mono);font-weight:800;color:var(--text-faint);font-size:13px;}
+.q-prompt{font-size:14.5px;margin-bottom:14px;}
+.q-answer{
+  margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:none;
+  animation:revealIn .3s ease;
+}
+.q-answer.shown{display:block;}
+@keyframes revealIn{from{opacity:0;max-height:0;}to{opacity:1;max-height:400px;}}
+.q-answer .ans-val{font-family:var(--mono);color:var(--success);font-weight:700;margin-bottom:8px;}
+.q-answer .ans-exp{font-size:13.5px;color:var(--text-dim);}
+.q-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.solved-tag{font-size:11.5px;color:var(--success);font-weight:700;display:flex;align-items:center;gap:5px;}
+.q-choice-list{display:grid;gap:8px;margin:14px 0;}
+.q-choice{display:flex;align-items:flex-start;gap:10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:9px;padding:11px 13px;color:var(--text-dim);font-size:13.5px;cursor:pointer;transition:all .15s ease;}
+.q-choice:hover{border-color:var(--border-strong);color:var(--text);background:var(--card-hover);}
+.q-choice input{accent-color:var(--accent);margin-top:4px;}
+.q-input,.q-select,.q-match-select{width:100%;background:var(--bg-elevated);border:1px solid var(--border-strong);border-radius:9px;color:var(--text);padding:11px 12px;font:13.5px var(--sans);outline:none;}
+.q-input:focus,.q-select:focus,.q-match-select:focus{border-color:var(--accent);}
+.q-input.code-input{font-family:var(--mono);min-height:74px;resize:vertical;}
+.q-match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin:14px 0;}
+.q-match-grid .match-label{font-family:var(--mono);font-size:13px;color:var(--text);}
+.q-feedback{display:none;margin-top:14px;padding:11px 13px;border-radius:9px;font-size:13px;}
+.q-feedback.show{display:block;}
+.q-feedback.correct{color:var(--success);background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.3);}
+.q-feedback.incorrect{color:var(--danger);background:rgba(240,102,95,.1);border:1px solid rgba(240,102,95,.3);}
+.q-card.answered-correct{border-color:rgba(62,207,142,.4);}
+.q-card.answered-wrong{border-color:rgba(240,102,95,.3);}
+.q-type-help{font-size:12px;color:var(--text-faint);margin-top:8px;}
+
+/* ---------- PROJECT ---------- */
+.project-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:28px;}
+@media(max-width:900px){.project-grid{grid-template-columns:1fr;}}
+.milestone-list{display:flex;flex-direction:column;gap:2px;}
+.milestone{
+  display:flex;align-items:flex-start;gap:12px;padding:14px 4px;border-bottom:1px solid var(--border);cursor:pointer;
+}
+.milestone:last-child{border-bottom:none;}
+.milestone .box{
+  width:20px;height:20px;border-radius:6px;border:2px solid var(--border-strong);flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s ease;
+}
+.milestone.done .box{background:var(--success);border-color:var(--success);color:#06150d;}
+.milestone .m-title{font-size:14.5px;font-weight:600;}
+.milestone.done .m-title{color:var(--text-dim);text-decoration:line-through;text-decoration-color:var(--text-faint);}
+.feature-list{display:flex;flex-direction:column;gap:10px;}
+.feature-item{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all .15s ease;
+}
+.feature-item:hover{border-color:var(--border-strong);background:var(--card-hover);}
+.feature-item h4{font-size:14px;margin-bottom:4px;}
+.feature-item p{font-size:12.5px;color:var(--text-faint);}
+
+.achieve-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:36px;}
+.achieve{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 14px;text-align:center;
+  opacity:0.4;filter:grayscale(1);transition:all .3s ease;
+}
+.achieve.unlocked{opacity:1;filter:none;border-color:rgba(232,197,71,0.35);background:linear-gradient(160deg, rgba(232,197,71,0.08), var(--card));}
+.achieve.pop{animation:achievePop .5s cubic-bezier(.3,1.4,.4,1);}
+@keyframes achievePop{0%{transform:scale(0.7) rotate(-6deg);}60%{transform:scale(1.15) rotate(3deg);}100%{transform:scale(1) rotate(0);}}
+.achieve .a-icon{font-size:28px;margin-bottom:8px;}
+.achieve .a-name{font-size:12px;font-weight:700;}
+.achieve .a-lock{font-size:10px;color:var(--text-faint);margin-top:4px;}
+
+/* ---------- REFERENCE ---------- */
+.ref-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);}
+table.ref-table{width:100%;border-collapse:collapse;min-width:640px;}
+table.ref-table th{
+  text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);
+  padding:12px 16px;background:var(--card);border-bottom:1px solid var(--border);white-space:nowrap;
+}
+table.ref-table td{padding:13px 16px;border-bottom:1px solid var(--border);font-size:13.5px;background:var(--bg-elevated);}
+table.ref-table tbody tr{cursor:pointer;transition:background .12s ease;}
+table.ref-table tbody tr:hover td{background:var(--card-hover);}
+table.ref-table tbody tr:last-child td{border-bottom:none;}
+table.ref-table td code{color:var(--accent);}
+.perf-tag{font-family:var(--mono);font-size:12px;padding:3px 8px;border-radius:6px;display:inline-block;}
+.perf-tag.o1{color:var(--success);background:rgba(62,207,142,0.1);}
+.perf-tag.ologn{color:var(--blue);background:rgba(111,141,251,0.1);}
+.perf-tag.on{color:var(--warning);background:rgba(232,197,71,0.1);}
+
+footer{border-top:1px solid var(--border);padding:40px 0;text-align:center;color:var(--text-faint);font-size:13px;}
+footer .btn{margin-top:14px;}
+
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr;}
+  .hero h1{font-size:38px;}
+  .prop-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:760px){
+  .nav-links{display:none;}
+  .nav-toggle{display:flex;}
+  .section{padding:64px 0;}
+  .hero{padding:48px 0 36px;}
+  .hero-stats{grid-template-columns:repeat(2,1fr);row-gap:18px;}
+  .hero-stats div:nth-child(2n){border-right:none;}
+  .method-row{grid-template-columns:1fr;gap:4px;}
+  .method-row .m-o{justify-self:start;}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <button class="logo" data-scroll="top" aria-label="Java Collections Lab home">☕ Java Collections Lab</button>
+    <ul class="nav-links">
+      <li><button data-scroll="overview">Overview</button></li>
+      <li><button data-scroll="collections">Collections</button></li>
+      <li><button data-scroll="visualizer">Visualizer</button></li>
+      <li><button data-scroll="practice">Practice</button></li>
+      <li><button data-scroll="project">Project</button></li>
+      <li><button data-scroll="reference">Reference</button></li>
+    </ul>
+    <div class="nav-right">
+      <div class="xp-pill" id="xpPill">⚡ <span id="xpVal">0</span> XP</div>
+      <div class="progress-pill">
+        <span>Progress</span>
+        <div class="bar-track"><div class="bar-fill" id="navBarFill" style="width:0%"></div></div>
+        <span id="navPct">0%</span>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
+    </div>
+  </div>
+  <ul class="nav-links" id="mobileNav" style="display:none;flex-direction:column;padding:8px 20px 16px;">
+    <li><button data-scroll="overview">Overview</button></li>
+    <li><button data-scroll="collections">Collections</button></li>
+    <li><button data-scroll="visualizer">Visualizer</button></li>
+    <li><button data-scroll="practice">Practice</button></li>
+    <li><button data-scroll="project">Project</button></li>
+    <li><button data-scroll="reference">Reference</button></li>
+  </ul>
+</header>
+
+<main>
+<!-- HERO -->
+<section class="section hero" id="overview">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow">☕ Java · Collections Framework</div>
+      <h1>Master Java <span class="accent">Collections</span></h1>
+      <p class="lead">Learn by seeing, experimenting, solving, and building. No memorized Big-O tables — watch them happen.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" data-scroll="collections">Explore Collections</button>
+        <button class="btn btn-ghost" data-scroll="visualizer">Open Visualizer</button>
+      </div>
+      <div class="hero-stats">
+        <div><div class="num">10</div><div class="label">Core Topics</div></div>
+        <div><div class="num">30+</div><div class="label">Practice Challenges</div></div>
+        <div><div class="num">1</div><div class="label">Hands-on Project</div></div>
+        <div><div class="num">100%</div><div class="label">Interactive</div></div>
+      </div>
+    </div>
+    <div class="progress-card">
+      <h3>Your Learning Progress</h3>
+      <div class="big-bar-track"><div class="big-bar-fill" id="heroBarFill" style="width:0%"></div></div>
+      <div class="pct" id="heroPct">0%</div>
+      <div class="sub" id="heroModulesText">0 / 10 modules completed</div>
+      <div class="xp-row">
+        <span style="color:var(--text-faint);font-size:12.5px;">Total XP</span>
+        <span class="xp-num" id="heroXp">0</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COLLECTIONS -->
+<section class="section" id="collections">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Collections</div>
+      <h2>Java Collections</h2>
+      <p>Choose the right collection by understanding how it behaves.</p>
+    </div>
+    <div class="search-row">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="collectionSearch" placeholder="Search collections..." aria-label="Search collections">
+      </div>
+    </div>
+    <div class="grid-cards" id="collectionsGrid"></div>
+    <p class="no-results" id="noResults">No collections match your search.</p>
+  </div>
+</section>
+
+<!-- VISUALIZER -->
+<section class="section" id="visualizer">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Visualizer</div>
+      <h2>Interactive Collection Visualizer</h2>
+      <p>Stop memorizing. See what actually happens.</p>
+    </div>
+    <div class="viz-shell">
+      <div class="viz-top">
+        <div class="field">
+          <label for="vizType">Collection</label>
+          <select id="vizType">
+            <option value="ArrayList">ArrayList</option>
+            <option value="LinkedList">LinkedList</option>
+            <option value="HashSet">HashSet</option>
+            <option value="HashMap">HashMap</option>
+            <option value="Queue">Queue</option>
+            <option value="PriorityQueue">PriorityQueue</option>
+          </select>
+        </div>
+        <div class="field" id="vizValueField">
+          <label for="vizValue">Value</label>
+          <input type="text" id="vizValue" placeholder="e.g. 20">
+        </div>
+        <div class="field" id="vizKeyField" style="display:none;">
+          <label for="vizKey">Key</label>
+          <input type="text" id="vizKey" placeholder="e.g. 101">
+        </div>
+        <div class="field" id="vizMapValField" style="display:none;">
+          <label for="vizMapVal">Value</label>
+          <input type="text" id="vizMapVal" placeholder="e.g. Alice">
+        </div>
+      </div>
+      <div class="viz-controls" id="vizControls"></div>
+      <div class="viz-explainer" id="vizExplainer"></div>
+      <div class="viz-stage" id="vizStage"><span class="viz-empty">Nothing here yet — add an item to begin.</span></div>
+      <div class="viz-bottom">
+        <div>
+          <div class="modal-section-title" style="margin-top:0;">Operation Log</div>
+          <div class="viz-log" id="vizLog"><div class="log-empty">No operations yet.</div></div>
+        </div>
+        <div>
+          <div class="modal-section-title" style="margin-top:0;">Live Stats</div>
+          <div class="viz-stats">
+            <div class="stat-box"><div class="k">Size</div><div class="v" id="statSize">0</div></div>
+            <div class="stat-box"><div class="k">Operations</div><div class="v" id="statOps">0</div></div>
+            <div class="stat-box"><div class="k">Last</div><div class="v" id="statLast">—</div></div>
+            <div class="stat-box"><div class="k">Search</div><div class="v" id="statSearch">—</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRACTICE -->
+<section class="section" id="practice">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Practice Arena</div>
+      <h2>Practice Arena</h2>
+      <p>Test whether you actually understand Collections.</p>
+    </div>
+    <div class="filter-row" id="qFilters"></div>
+    <div class="q-list" id="qList"></div>
+  </div>
+</section>
+
+<!-- PROJECT -->
+<section class="section" id="project">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Build Project</div>
+      <h2>Student Management System</h2>
+      <p>Build a mini student management system using Java Collections — ArrayList storage, HashMap lookup, HashSet skills, Comparator ranking, search and reporting.</p>
+    </div>
+    <div class="project-grid">
+      <div class="viz-shell">
+        <h3 style="font-size:15px;margin-bottom:16px;">Project Progress</h3>
+        <div class="big-bar-track"><div class="big-bar-fill" id="projBarFill" style="width:0%"></div></div>
+        <div class="pct" id="projPct" style="font-size:24px;margin:12px 0 4px;">0%</div>
+        <div class="sub" id="projText" style="margin-bottom:18px;">0 / 7 milestones completed</div>
+        <div class="milestone-list" id="milestoneList"></div>
+      </div>
+      <div>
+        <h3 style="font-size:15px;margin-bottom:16px;">Feature Deep-Dives</h3>
+        <div class="feature-list" id="featureList"></div>
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:56px;">
+      <div class="eyebrow">Achievements</div>
+      <h2 style="font-size:24px;">Unlockable Badges</h2>
+    </div>
+    <div class="achieve-grid" id="achieveGrid"></div>
+  </div>
+</section>
+
+<!-- REFERENCE -->
+<section class="section" id="reference">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Reference</div>
+      <h2>Reference &amp; Cheat Sheet</h2>
+      <p>Method tables and a full performance comparison. Click any row for details.</p>
+    </div>
+    <div class="ref-tabs" id="refTabs"></div>
+    <div class="table-wrap" style="margin-bottom:40px;">
+      <table class="ref-table" id="refMethodsTable">
+        <thead><tr><th>Method</th><th>Description</th><th>Complexity</th></tr></thead>
+        <tbody id="refMethodsBody"></tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:18px;margin-bottom:16px;">Performance Dashboard</h3>
+    <div class="table-wrap">
+      <table class="ref-table">
+        <thead><tr><th>Collection</th><th>Search</th><th>Insert</th><th>Delete</th><th>Ordering</th><th>Duplicates</th></tr></thead>
+        <tbody id="perfBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container">
+    <p>Java Collections Lab — built for learning by doing.</p>
+    <button class="btn btn-ghost btn-sm" id="resetBtn">Reset Progress</button>
+  </div>
+</footer>
+
+<!-- Collection Detail Modal -->
+<div class="modal-overlay" id="collectionModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">ARRAYLIST</h2>
+      <button class="modal-close" id="modalCloseBtn" aria-label="Close">✕</button>
+    </div>
+    <p class="modal-desc" id="modalDesc"></p>
+    <div class="usewhen-box" id="modalUseWhen"></div>
+    <div class="modal-section-title">Hierarchy</div>
+    <div class="relation-box" id="modalHierarchy"></div>
+    <div id="modalPipeline"></div>
+    <div class="modal-section-title" id="modalMethodsTitle">Core Methods</div>
+    <div id="modalMethods"></div>
+    <div class="modal-section-title">Properties</div>
+    <div class="prop-grid" id="modalProps"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="modalCompleteBtn">Mark as Complete +25 XP</button>
+      <button class="btn btn-ghost" id="modalVisualizerBtn">Try in Visualizer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Feature Detail Modal -->
+<div class="modal-overlay" id="featureModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2 id="featureModalTitle" style="font-size:18px;"></h2>
+      <button class="modal-close" id="featureModalCloseBtn" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-section-title" style="margin-top:6px;">Why?</div>
+    <p class="modal-desc" id="featureModalWhy"></p>
+    <div class="code-block" id="featureModalCode"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+/* =========================================================
+   DATA MODEL
+========================================================= */
+const collections = {
+  Collection: {
+    kind:'Interface', extends:'Iterable', implementedBy:'List, Set, Queue',
+    icon:'🧺', badge:'other', type:'Root Collection Interface', ordering:'No fixed ordering contract', duplicates:'Depends on subinterface', nulls:'Depends on implementation', threadSafe:'No',
+    description:'The root interface of the Java Collections hierarchy for groups of objects.',
+    useCase:'Use Collection when your API should accept or return a generic group of elements without committing to list, set, or queue semantics.',
+    methods:[
+      {sig:'add(E)',desc:'Insert an element if supported',o:'—'},
+      {sig:'remove(Object)',desc:'Remove a matching element',o:'—'},
+      {sig:'contains(Object)',desc:'Check whether an element exists',o:'—'},
+      {sig:'size()',desc:'Return the number of elements',o:'—'},
+      {sig:'iterator()',desc:'Traverse the elements',o:'—'}
+    ]
+  },
+  List: {
+    kind:'Interface', extends:'Collection', implementedBy:'ArrayList, LinkedList',
+    icon:'🧾', badge:'list', type:'Interface', ordering:'Ordered by position', duplicates:'Allowed', nulls:'Usually allowed', threadSafe:'No',
+    description:'Parent interface for ordered collections with index-based access.',
+    useCase:'When you need a sequence of elements where position matters and duplicates are valid.',
+    methods:[
+      {sig:'add(E)',desc:'Append an element',o:'—'},
+      {sig:'get(index)',desc:'Read an element by position',o:'—'},
+      {sig:'set(index, E)',desc:'Replace an element at a position',o:'—'},
+      {sig:'remove(index)',desc:'Delete an element at a position',o:'—'}
+    ]
+  },
+  ArrayList: {
+    kind:'Class', implements:'List',
+    icon:'📋', badge:'list', type:'List', ordering:'Insertion order', duplicates:'Allowed', nulls:'Allowed', threadSafe:'No',
+    description:'Resizable array backed by dynamic storage.',
+    useCase:'When you need ordered data and frequent indexed access.',
+    methods:[
+      {sig:'add(E)',desc:'Append element',o:'O(1) amortized'},
+      {sig:'get(index)',desc:'Read element',o:'O(1)'},
+      {sig:'set(index, E)',desc:'Replace element',o:'O(1)'},
+      {sig:'remove(index)',desc:'Remove element',o:'O(n)'},
+      {sig:'contains(E)',desc:'Search',o:'O(n)'}
+    ]
+  },
+  LinkedList: {
+    kind:'Class', implements:'List, Deque',
+    icon:'🔗', badge:'list', type:'List / Deque', ordering:'Insertion order', duplicates:'Allowed', nulls:'Allowed', threadSafe:'No',
+    description:'Doubly linked list implementation of List and Deque.',
+    useCase:'Deque operations, or frequent insertion/removal at the ends.',
+    methods:[
+      {sig:'addFirst(E)',desc:'Insert at head',o:'O(1)'},
+      {sig:'addLast(E)',desc:'Insert at tail',o:'O(1)'},
+      {sig:'get(index)',desc:'Read element (walks list)',o:'O(n)'},
+      {sig:'removeFirst()',desc:'Remove head',o:'O(1)'},
+      {sig:'contains(E)',desc:'Search',o:'O(n)'}
+    ]
+  },
+  Set: {
+    kind:'Interface', extends:'Collection', implementedBy:'HashSet, TreeSet',
+    icon:'🧱', badge:'set', type:'Interface', ordering:'No duplicates; order depends on implementation', duplicates:'Not allowed', nulls:'Depends on implementation', threadSafe:'No',
+    description:'Parent interface for collections that store only unique elements.',
+    useCase:'When uniqueness matters more than index positions.',
+    methods:[
+      {sig:'add(E)',desc:'Insert if not already present',o:'—'},
+      {sig:'contains(E)',desc:'Check membership',o:'—'},
+      {sig:'remove(E)',desc:'Delete an element',o:'—'},
+      {sig:'iterator()',desc:'Traverse unique elements',o:'—'}
+    ]
+  },
+  SortedSet: {
+    kind:'Interface', extends:'Set', implementedBy:'TreeSet, NavigableSet',
+    icon:'📐', badge:'set', type:'Sorted Set Interface', ordering:'Ascending order or Comparator order', duplicates:'Not allowed', nulls:'Usually disallowed in sorted implementations', threadSafe:'No',
+    description:'A Set that keeps its elements sorted automatically.',
+    useCase:'Use SortedSet when you need uniqueness plus ordered traversal, but do not need navigation helpers such as floor() or ceiling().',
+    methods:[
+      {sig:'first()',desc:'Read the smallest element',o:'—'},
+      {sig:'last()',desc:'Read the largest element',o:'—'},
+      {sig:'headSet(E)',desc:'View elements smaller than a bound',o:'—'},
+      {sig:'tailSet(E)',desc:'View elements greater than or equal to a bound',o:'—'},
+      {sig:'comparator()',desc:'Return the ordering strategy if custom',o:'—'}
+    ]
+  },
+  NavigableSet: {
+    kind:'Interface', extends:'SortedSet', implementedBy:'TreeSet',
+    icon:'🧭', badge:'set', type:'Navigable Set Interface', ordering:'Sorted with navigation support', duplicates:'Not allowed', nulls:'Typically disallowed', threadSafe:'No',
+    description:'A SortedSet with extra nearest-match navigation operations.',
+    useCase:'Use NavigableSet when you need sorted unique data plus queries like nearest lower, nearest higher, or reverse traversal.',
+    methods:[
+      {sig:'lower(E)',desc:'Greatest element strictly less than target',o:'—'},
+      {sig:'floor(E)',desc:'Greatest element less than or equal to target',o:'—'},
+      {sig:'ceiling(E)',desc:'Smallest element greater than or equal to target',o:'—'},
+      {sig:'higher(E)',desc:'Smallest element strictly greater than target',o:'—'},
+      {sig:'descendingSet()',desc:'Reverse-order view of the set',o:'—'}
+    ]
+  },
+  HashSet: {
+    kind:'Class', implements:'Set',
+    icon:'🧩', badge:'set', type:'Set', ordering:'No guaranteed iteration order', duplicates:'Not allowed', nulls:'One null allowed', threadSafe:'No',
+    description:'Hash-table backed collection of unique elements.',
+    useCase:'Uniqueness checks and fast membership tests.',
+    methods:[
+      {sig:'add(E)',desc:'Insert if absent',o:'O(1) average'},
+      {sig:'contains(E)',desc:'Membership test',o:'O(1) average'},
+      {sig:'remove(E)',desc:'Delete element',o:'O(1) average'},
+      {sig:'size()',desc:'Element count',o:'O(1)'}
+    ]
+  },
+  LinkedHashSet: {
+    kind:'Class', implements:'Set',
+    icon:'🔗', badge:'set', type:'Insertion-Ordered Set', ordering:'Insertion order', duplicates:'Not allowed', nulls:'One null allowed', threadSafe:'No',
+    description:'A HashSet variant that preserves insertion order using a linked structure.',
+    useCase:'Use LinkedHashSet when you need uniqueness like HashSet but want iteration order to remain predictable.',
+    methods:[
+      {sig:'add(E)',desc:'Insert if absent while preserving insertion order',o:'O(1) average'},
+      {sig:'contains(E)',desc:'Membership test',o:'O(1) average'},
+      {sig:'remove(E)',desc:'Delete an element',o:'O(1) average'},
+      {sig:'iterator()',desc:'Traverse in insertion order',o:'O(n)'}
+    ]
+  },
+  Deque: {
+    kind:'Interface', extends:'Queue', implementedBy:'LinkedList, ArrayDeque',
+    icon:'↔️', badge:'queue', type:'Interface', ordering:'Both ends are accessible', duplicates:'Allowed', nulls:'Depends on implementation', threadSafe:'No',
+    description:'Double-ended queue interface for adding and removing from both front and rear.',
+    useCase:'When you need queue or stack style behavior from the same abstraction.',
+    methods:[
+      {sig:'addFirst(E)',desc:'Insert at the front',o:'—'},
+      {sig:'addLast(E)',desc:'Insert at the rear',o:'—'},
+      {sig:'removeFirst()',desc:'Remove from the front',o:'—'},
+      {sig:'removeLast()',desc:'Remove from the rear',o:'—'}
+    ]
+  },
+  TreeSet: {
+    kind:'Class', implements:'NavigableSet / SortedSet / Set',
+    icon:'🌳', badge:'set', type:'Sorted Set', ordering:'Sorted (natural / Comparator)', duplicates:'Not allowed', nulls:'Not allowed', threadSafe:'No',
+    description:'Red-black tree backed sorted set of unique elements.',
+    useCase:'Unique data that must stay sorted, or range queries.',
+    methods:[
+      {sig:'add(E)',desc:'Insert maintaining order',o:'O(log n)'},
+      {sig:'contains(E)',desc:'Membership test',o:'O(log n)'},
+      {sig:'remove(E)',desc:'Delete element',o:'O(log n)'},
+      {sig:'first() / last()',desc:'Smallest / largest',o:'O(log n)'}
+    ]
+  },
+  Map: {
+    kind:'Interface', extends:'None', implementedBy:'HashMap, TreeMap',
+    icon:'🗂️', badge:'map', type:'Interface', ordering:'By key-value entries; order depends on implementation', duplicates:'Keys must be unique; values may repeat', nulls:'Depends on implementation', threadSafe:'No',
+    description:'Parent interface for key-value associations.',
+    useCase:'When every value should be retrieved through a unique key rather than a numeric index.',
+    methods:[
+      {sig:'put(K, V)',desc:'Add or replace a mapping',o:'—'},
+      {sig:'get(K)',desc:'Read a value by key',o:'—'},
+      {sig:'containsKey(K)',desc:'Check whether a key exists',o:'—'},
+      {sig:'remove(K)',desc:'Delete a mapping',o:'—'}
+    ]
+  },
+  SortedMap: {
+    kind:'Interface', extends:'Map', implementedBy:'TreeMap, NavigableMap',
+    icon:'🧾', badge:'map', type:'Sorted Map Interface', ordering:'Keys remain sorted', duplicates:'Keys must be unique', nulls:'Usually no null keys in sorted implementations', threadSafe:'No',
+    description:'A Map whose keys are maintained in sorted order.',
+    useCase:'Use SortedMap when you need key-value storage plus ordered key traversal, but not the full nearest-match navigation API.',
+    methods:[
+      {sig:'firstKey()',desc:'Read the smallest key',o:'—'},
+      {sig:'lastKey()',desc:'Read the largest key',o:'—'},
+      {sig:'headMap(K)',desc:'View mappings below a bound',o:'—'},
+      {sig:'tailMap(K)',desc:'View mappings from a bound onward',o:'—'},
+      {sig:'comparator()',desc:'Return the key ordering strategy',o:'—'}
+    ]
+  },
+  NavigableMap: {
+    kind:'Interface', extends:'SortedMap', implementedBy:'TreeMap',
+    icon:'🧭', badge:'map', type:'Navigable Map Interface', ordering:'Sorted with navigation support', duplicates:'Keys must be unique', nulls:'Typically no null keys', threadSafe:'No',
+    description:'A SortedMap with navigation operations for nearest lower or higher keys and entries.',
+    useCase:'Use NavigableMap when you need sorted key-value data plus floor, ceiling, lower, higher, or descending views.',
+    methods:[
+      {sig:'lowerKey(K)',desc:'Greatest key strictly less than target',o:'—'},
+      {sig:'floorKey(K)',desc:'Greatest key less than or equal to target',o:'—'},
+      {sig:'ceilingKey(K)',desc:'Smallest key greater than or equal to target',o:'—'},
+      {sig:'higherKey(K)',desc:'Smallest key strictly greater than target',o:'—'},
+      {sig:'descendingMap()',desc:'Reverse-order view of the map',o:'—'}
+    ]
+  },
+  HashMap: {
+    kind:'Class', implements:'Map',
+    icon:'🗺️', badge:'map', type:'Map', ordering:'No guaranteed iteration order', duplicates:'No duplicate keys, values may repeat', nulls:'One null key, many null values', threadSafe:'No',
+    description:'Hash-table backed key-value store.',
+    useCase:'Fast key-value lookup by an identifying key.',
+    methods:[
+      {sig:'put(K, V)',desc:'Insert or update mapping',o:'O(1) average'},
+      {sig:'get(K)',desc:'Read value by key',o:'O(1) average'},
+      {sig:'containsKey(K)',desc:'Key membership test',o:'O(1) average'},
+      {sig:'remove(K)',desc:'Delete mapping',o:'O(1) average'}
+    ]
+  },
+  LinkedHashMap: {
+    kind:'Class', implements:'Map',
+    icon:'🪢', badge:'map', type:'Insertion-Ordered Map', ordering:'Insertion order by default', duplicates:'Keys must be unique; values may repeat', nulls:'One null key, many null values', threadSafe:'No',
+    description:'A HashMap variant that preserves predictable iteration order using a linked list of entries.',
+    useCase:'Use LinkedHashMap when you need HashMap-style lookups but iteration order must follow insertion order or access order for cache-like behavior.',
+    methods:[
+      {sig:'put(K, V)',desc:'Insert or update while preserving linked entry order',o:'O(1) average'},
+      {sig:'get(K)',desc:'Read a value by key',o:'O(1) average'},
+      {sig:'entrySet()',desc:'Traverse entries in insertion or access order',o:'O(n)'},
+      {sig:'removeEldestEntry(...)',desc:'Customize eviction for LRU-style caches',o:'—'}
+    ]
+  },
+  TreeMap: {
+    kind:'Class', implements:'NavigableMap / SortedMap / Map',
+    icon:'🌲', badge:'map', type:'Sorted Map', ordering:'Sorted by key', duplicates:'No duplicate keys', nulls:'No null keys', threadSafe:'No',
+    description:'Red-black tree backed key-value store, sorted by key.',
+    useCase:'Sorted key-value data, or range queries over keys.',
+    methods:[
+      {sig:'put(K, V)',desc:'Insert maintaining key order',o:'O(log n)'},
+      {sig:'get(K)',desc:'Read value by key',o:'O(log n)'},
+      {sig:'remove(K)',desc:'Delete mapping',o:'O(log n)'},
+      {sig:'firstKey() / lastKey()',desc:'Smallest / largest key',o:'O(log n)'}
+    ]
+  },
+  Queue: {
+    kind:'Interface', extends:'Collection', implementedBy:'LinkedList, PriorityQueue',
+    icon:'🚶', badge:'queue', type:'FIFO', ordering:'Insertion order (FIFO)', duplicates:'Allowed', nulls:'Depends on implementation', threadSafe:'No',
+    description:'First-In-First-Out collection interface.',
+    useCase:'Processing items strictly in the order they arrived.',
+    methods:[
+      {sig:'offer(E)',desc:'Add to rear',o:'O(1)'},
+      {sig:'poll()',desc:'Remove &amp; return front',o:'O(1)'},
+      {sig:'peek()',desc:'Read front without removing',o:'O(1)'}
+    ]
+  },
+  ArrayDeque: {
+    kind:'Class', implements:'Deque / Queue',
+    icon:'📥', badge:'queue', type:'Resizable Array Deque', ordering:'Both ends with predictable deque order', duplicates:'Allowed', nulls:'Not allowed', threadSafe:'No',
+    description:'A resizable-array implementation of Deque that works well as both a stack and a queue.',
+    useCase:'Use ArrayDeque when you need faster stack/queue operations than LinkedList and do not need indexed access or null elements.',
+    methods:[
+      {sig:'addFirst(E)',desc:'Insert at the front',o:'O(1) amortized'},
+      {sig:'addLast(E)',desc:'Insert at the rear',o:'O(1) amortized'},
+      {sig:'pollFirst()',desc:'Remove and return the front element',o:'O(1)'},
+      {sig:'pollLast()',desc:'Remove and return the rear element',o:'O(1)'},
+      {sig:'peekFirst() / peekLast()',desc:'Inspect either end without removal',o:'O(1)'}
+    ]
+  },
+  PriorityQueue: {
+    kind:'Class', implements:'Queue',
+    icon:'⛰️', badge:'queue', type:'Heap-based priority queue', ordering:'By priority, not insertion order', duplicates:'Allowed', nulls:'Not allowed', threadSafe:'No',
+    description:'Binary-heap backed queue that orders elements by priority.',
+    useCase:'Always retrieving the highest or lowest priority item.',
+    methods:[
+      {sig:'offer(E)',desc:'Insert into heap',o:'O(log n)'},
+      {sig:'poll()',desc:'Remove &amp; return highest priority',o:'O(log n)'},
+      {sig:'peek()',desc:'Read highest priority',o:'O(1)'}
+    ]
+  },
+  Streams: {
+    kind:'Pipeline', extends:'N/A', implementedBy:'N/A',
+    icon:'🌊', badge:'other', type:'Processing pipeline', ordering:'Depends on source', duplicates:'Depends on source', nulls:'Depends on operation', threadSafe:'N/A',
+    description:'Declarative processing pipelines over a data source. Streams are NOT a Collection implementation — they process collections.',
+    useCase:'Filtering, transforming, and collecting data declaratively.',
+    isPipeline:true,
+    methods:[
+      {sig:'filter()',desc:'Keep elements matching a predicate',o:'O(n)'},
+      {sig:'map()',desc:'Transform each element',o:'O(n)'},
+      {sig:'sorted()',desc:'Sort the stream',o:'O(n log n)'},
+      {sig:'distinct()',desc:'Remove duplicates',o:'O(n)'},
+      {sig:'collect()',desc:'Reduce to a collection',o:'O(n)'}
+    ]
+  },
+  Comparator: {
+    kind:'Interface', extends:'None', implementedBy:'Custom comparator classes / lambdas',
+    icon:'⚖️', badge:'other', type:'Functional interface', ordering:'User-defined', duplicates:'N/A', nulls:'N/A', threadSafe:'N/A',
+    description:'Defines a custom ordering between objects, independent of their natural ordering.',
+    useCase:'Sorting objects by a field, or by multiple fields, in any direction.',
+    methods:[
+      {sig:'Comparator.comparing(Student::getMarks)',desc:'Sort ascending by marks',o:'—'},
+      {sig:'Comparator.comparing(Student::getAge)',desc:'Sort ascending by age',o:'—'},
+      {sig:'Comparator.comparing(Student::getMarks).reversed()',desc:'Sort descending by marks',o:'—'}
+    ]
+  }
+};
+const collectionOrder = ['Collection','List','ArrayList','LinkedList','Set','SortedSet','NavigableSet','HashSet','LinkedHashSet','TreeSet','Map','SortedMap','NavigableMap','HashMap','LinkedHashMap','TreeMap','Queue','Deque','ArrayDeque','PriorityQueue','Streams','Comparator'];
+
+// Practice questions (30+)
+let questions = [
+  {type:'Output Prediction',topic:'ArrayList',prompt:'List<Integer> list = new ArrayList<>(List.of(10,20,30));\nSystem.out.println(list.get(1));',answer:'20',explanation:'get(1) reads the element at index 1 (zero-based), which is 20.'},
+  {type:'Output Prediction',topic:'ArrayList',prompt:'List<String> l = new ArrayList<>();\nl.add("a"); l.add("b"); l.remove(0);\nSystem.out.println(l);',answer:'[b]',explanation:'remove(0) removes by index, deleting "a". Only "b" remains.'},
+  {type:'Find the Bug',topic:'ArrayList',prompt:'List<Integer> l = List.of(1,2,3);\nl.add(4); // throws at runtime',answer:'UnsupportedOperationException',explanation:'List.of() returns an immutable list. Calling add() on it throws UnsupportedOperationException.'},
+  {type:'Fill in the Blank',topic:'ArrayList',prompt:'To get the number of elements in an ArrayList, call ______().',answer:'size',explanation:'size() returns the current element count of any Collection.'},
+  {type:'Interview Challenge',topic:'ArrayList',prompt:'Which statement best describes ArrayList?',answer:'A resizable array that preserves insertion order and allows duplicates',explanation:'ArrayList is a resizable array-backed List. It preserves insertion order and can contain duplicate elements.'},
+  {type:'Output Prediction',topic:'LinkedList',prompt:'Deque<Integer> d = new LinkedList<>();\nd.addFirst(1); d.addLast(2); d.addFirst(0);\nSystem.out.println(d);',answer:'[0, 1, 2]',explanation:'addFirst inserts at the head, addLast at the tail — order becomes 0,1,2.'},
+  {type:'Scenario-Based',topic:'LinkedList',prompt:'You need to insert and remove frequently from both ends of a list, with no random access. Which collection fits best?',answer:'LinkedList',explanation:'LinkedList gives O(1) insert/remove at both ends via its Deque interface, unlike ArrayList.'},
+  {type:'Interview Challenge',topic:'LinkedList',prompt:'What is the time complexity of LinkedList.get(index)?',answer:'O(n)',explanation:'LinkedList has no random access — it must walk node by node from an end to reach the index.'},
+  {type:'Match the Following',topic:'LinkedList',prompt:'Match the following: which interface represents an ordered list, and which represents a double-ended queue?',answer:'List and Deque',explanation:'LinkedList implements both List (ordered access) and Deque (double-ended queue operations).'},
+  {type:'Output Prediction',topic:'HashSet',prompt:'Set<String> s = new HashSet<>();\ns.add("Java"); s.add("Spring"); s.add("Java");\nSystem.out.println(s.size());',answer:'2',explanation:'HashSet stores only unique elements — the second "Java" is silently ignored, leaving size 2.'},
+  {type:'Find the Bug',topic:'HashSet',prompt:'class Point { int x, y; } // no equals()/hashCode()\nSet<Point> set = new HashSet<>();\nset.add(new Point(1,1));\nset.add(new Point(1,1)); // size becomes 2, not 1',answer:'Missing equals()/hashCode()',explanation:'Without overriding equals() and hashCode(), HashSet treats two logically equal Points as different objects (identity comparison).'},
+  {type:'Interview Challenge',topic:'HashSet',prompt:'Why is HashSet.contains() O(1) on average but O(n) worst case?',answer:'Hash collisions',explanation:'With good hash distribution, buckets hold few elements (O(1)). With many collisions, a bucket can degrade toward a list scan (O(n)).'},
+  {type:'Scenario-Based',topic:'HashSet',prompt:'You need to store unique usernames with no ordering requirement, optimizing for lookup speed. Best choice?',answer:'HashSet',explanation:'HashSet gives O(1) average add/contains and enforces uniqueness — exactly what unordered unique data needs.'},
+  {type:'Output Prediction',topic:'TreeSet',prompt:'Set<Integer> s = new TreeSet<>(List.of(5,1,4,2));\nSystem.out.println(s);',answer:'[1, 2, 4, 5]',explanation:'TreeSet always iterates in sorted order regardless of insertion order.'},
+  {type:'Interview Challenge',topic:'TreeSet',prompt:'What is the defining behavior of TreeSet?',answer:'It stores unique elements in sorted order',explanation:'TreeSet is a sorted Set. It removes duplicates and iterates according to natural ordering or a supplied Comparator.'},
+  {type:'Fill in the Blank',topic:'TreeSet',prompt:'TreeSet does NOT allow ______ elements.',answer:'null',explanation:'TreeSet compares elements to maintain order; comparing against null throws NullPointerException, so null is disallowed.'},
+  {type:'Output Prediction',topic:'HashMap',prompt:'Map<Integer,String> m = new HashMap<>();\nm.put(1,"A"); m.put(1,"B");\nSystem.out.println(m.get(1));',answer:'B',explanation:'put() with an existing key overwrites the previous value — the second put replaces "A" with "B".'},
+  {type:'Find the Bug',topic:'HashMap',prompt:'Map<Integer,String> m = new HashMap<>();\nString v = m.get(99);\nv.length(); // NullPointerException',answer:'NullPointerException on missing key',explanation:'get() on a missing key returns null, not an exception. Calling a method on that null throws NPE.'},
+  {type:'Interview Challenge',topic:'HashMap',prompt:'Can a HashMap have duplicate keys?',answer:'No',explanation:'Keys are unique — inserting an existing key updates its value rather than adding a new entry.'},
+  {type:'Scenario-Based',topic:'HashMap',prompt:'You need O(1) average lookup of a Student object by student ID. Which collection?',answer:'HashMap<Integer, Student>',explanation:'HashMap gives O(1) average get()/put() keyed by ID, far faster than scanning a List.'},
+  {type:'Output Prediction',topic:'TreeMap',prompt:'Map<String,Integer> m = new TreeMap<>();\nm.put("b",2); m.put("a",1);\nSystem.out.println(m.keySet());',answer:'[a, b]',explanation:'TreeMap keeps keys sorted, so iteration order is alphabetical regardless of insertion order.'},
+  {type:'Interview Challenge',topic:'TreeMap',prompt:'When would you prefer TreeMap over HashMap?',answer:'When sorted key order or range queries are needed',explanation:'TreeMap trades O(1) for O(log n) operations in exchange for maintaining sorted key order and supporting range queries like firstKey()/lastKey().'},
+  {type:'Output Prediction',topic:'Queue',prompt:'Queue<Integer> q = new LinkedList<>();\nq.offer(1); q.offer(2); q.offer(3);\nSystem.out.println(q.poll());',answer:'1',explanation:'Queue is FIFO — poll() removes and returns the element that was added first.'},
+  {type:'Scenario-Based',topic:'Queue',prompt:'You are processing print jobs in the exact order they were submitted. Which structure?',answer:'Queue',explanation:'Queue guarantees FIFO ordering, matching "first submitted, first processed" semantics.'},
+  {type:'Find the Bug',topic:'Queue',prompt:'Queue<Integer> q = new LinkedList<>();\nint x = q.remove(); // throws on empty queue',answer:'NoSuchElementException',explanation:'remove() throws when the queue is empty; poll() would instead return null. Use poll() for safe empty checks.'},
+  {type:'Output Prediction',topic:'PriorityQueue',prompt:'Queue<Integer> pq = new PriorityQueue<>(List.of(30,10,20,5));\nSystem.out.println(pq.poll());',answer:'5',explanation:'PriorityQueue is a min-heap by default — poll() always returns the smallest element first, not the first inserted.'},
+  {type:'Interview Challenge',topic:'PriorityQueue',prompt:'Does PriorityQueue guarantee FIFO order for equal-priority elements?',answer:'No',explanation:'PriorityQueue only orders by priority; among equal-priority elements, order is unspecified.'},
+  {type:'Scenario-Based',topic:'PriorityQueue',prompt:'You need to always process the most urgent hospital patient next. Which collection?',answer:'PriorityQueue',explanation:'PriorityQueue retrieves the highest (or lowest) priority element first, matching triage-style processing.'},
+  {type:'Arrange the Code',topic:'Comparator',prompt:'Arrange to sort students by marks descending:\nA) .reversed()\nB) students.sort(...)\nC) Comparator.comparing(Student::getMarks)',answer:'B → C → A: students.sort(Comparator.comparing(Student::getMarks).reversed())',explanation:'You build the Comparator first (C), reverse it (A), then pass the whole expression into sort() (B) as the argument.'},
+  {type:'Output Prediction',topic:'Comparator',prompt:'List<String> l = new ArrayList<>(List.of("banana","apple","cherry"));\nl.sort(Comparator.naturalOrder());\nSystem.out.println(l);',answer:'[apple, banana, cherry]',explanation:'Comparator.naturalOrder() sorts Strings alphabetically using their natural (Comparable) ordering.'},
+  {type:'Interview Challenge',topic:'Comparator',prompt:'What is the difference between Comparable and Comparator?',answer:'Comparable defines a class\'s natural order internally; Comparator defines external, swappable orderings',explanation:'Comparable.compareTo() is implemented inside the class itself. Comparator is a separate object you pass in, letting you define multiple orderings without modifying the class.'},
+  {type:'Output Prediction',topic:'Streams',prompt:'List<Integer> nums = List.of(1,2,3,4,5);\nlong count = nums.stream().filter(n -> n % 2 == 0).count();\nSystem.out.println(count);',answer:'2',explanation:'filter keeps only even numbers (2 and 4), and count() reports how many remain: 2.'},
+  {type:'Fill in the Blank',topic:'Streams',prompt:'To turn a Stream back into a List, call .______(Collectors.toList()).',answer:'collect',explanation:'collect() is the terminal operation that reduces a stream into a resulting collection using a Collector.'},
+  {type:'Interview Challenge',topic:'Streams',prompt:'Is a Java Stream itself a Collection implementation?',answer:'No',explanation:'Streams are a processing pipeline over a data source (often a Collection) — they do not store elements themselves and cannot be reused after a terminal operation.'}
+];
+
+// Keep the practice arena focused on collection concepts, behavior, and API semantics.
+questions = questions.filter(q => !/complexity|O\(\d|O\(n|O\(log|average lookup|optimizing for lookup|trades O\(/i.test(q.prompt + ' ' + q.answer + ' ' + q.explanation));
+questions.push(
+  {type:'Interview Challenge',topic:'Collection',prompt:'What does the Collection interface represent in Java?',answer:'A generic group of elements and the root interface for List, Set, and Queue',explanation:'Collection is the top-level interface for most element-based containers in the Java Collections Framework. It defines shared operations such as add(), remove(), contains(), and size().'},
+  {type:'Fill in the Blank',topic:'Collection',prompt:'The parent interface of List, Set, and Queue is ________.',answer:'Collection',explanation:'List, Set, and Queue all derive from Collection, which defines the common element-based operations.'},
+  {type:'Interview Challenge',topic:'SortedSet',prompt:'What extra guarantee does SortedSet provide beyond Set?',answer:'It keeps unique elements in sorted order',explanation:'SortedSet still forbids duplicates like Set, but it also maintains elements according to natural ordering or a supplied Comparator.'},
+  {type:'Find the Bug',topic:'SortedSet',prompt:'SortedSet<Integer> s = new TreeSet<>();\ns.add(3); s.add(1);\nSystem.out.println(\"First inserted stays first: \" + s);',answer:'Wrong assumption about insertion order',explanation:'A SortedSet does not preserve insertion order. It preserves sorted order, so iteration follows element ordering rather than insertion sequence.'},
+  {type:'Interview Challenge',topic:'NavigableSet',prompt:'Why would you choose NavigableSet over SortedSet?',answer:'Because it adds navigation methods like lower, floor, ceiling, and higher',explanation:'NavigableSet extends SortedSet by supporting nearest-match lookups and descending views.'},
+  {type:'Fill in the Blank',topic:'NavigableSet',prompt:'To get the greatest element less than or equal to a target in a NavigableSet, use ______().',answer:'floor',explanation:'floor() returns the nearest element that is less than or equal to the given value.'},
+  {type:'Interview Challenge',topic:'LinkedHashSet',prompt:'How is LinkedHashSet different from HashSet?',answer:'It preserves insertion order while still enforcing uniqueness',explanation:'LinkedHashSet uses hashing for uniqueness like HashSet, but also keeps a linked order for predictable iteration.'},
+  {type:'Scenario-Based',topic:'LinkedHashSet',prompt:'You need unique tags, but they must appear later in the same order users entered them. Which collection fits?',answer:'LinkedHashSet',explanation:'LinkedHashSet keeps only unique elements and iterates in insertion order, which matches that requirement.'},
+  {type:'Interview Challenge',topic:'SortedMap',prompt:'What does SortedMap guarantee about its keys?',answer:'Keys are maintained in sorted order',explanation:'SortedMap keeps entries ordered by key using natural ordering or a Comparator.'},
+  {type:'Fill in the Blank',topic:'SortedMap',prompt:'The method that returns the smallest key in a SortedMap is ________().',answer:'firstKey',explanation:'firstKey() returns the lowest key according to the map ordering.'},
+  {type:'Interview Challenge',topic:'NavigableMap',prompt:'What extra capability does NavigableMap add beyond SortedMap?',answer:'Nearest-match navigation such as lowerKey, floorKey, ceilingKey, and higherKey',explanation:'NavigableMap extends SortedMap with methods for finding keys just below or above a target, plus reverse views.'},
+  {type:'Match the Following',topic:'NavigableMap',prompt:'Match the following: exact-or-lower key and exact-or-higher key operations in NavigableMap.',answer:'floorKey and ceilingKey',explanation:'floorKey() returns the greatest key less than or equal to the target, while ceilingKey() returns the smallest key greater than or equal to it.'},
+  {type:'Interview Challenge',topic:'LinkedHashMap',prompt:'How is LinkedHashMap different from HashMap?',answer:'It preserves predictable iteration order while still using key-value hashing',explanation:'LinkedHashMap behaves like HashMap for mapping keys to values, but it links entries so iteration order remains consistent.'},
+  {type:'Scenario-Based',topic:'LinkedHashMap',prompt:'You need key-value lookup plus iteration in the same order entries were inserted. Which map should you choose?',answer:'LinkedHashMap',explanation:'LinkedHashMap combines HashMap-style lookups with insertion-order iteration.'},
+  {type:'Interview Challenge',topic:'ArrayDeque',prompt:'Why is ArrayDeque commonly preferred over Stack for stack behavior?',answer:'Because it is a modern Deque implementation with efficient operations at both ends',explanation:'ArrayDeque is the recommended general-purpose stack/queue replacement because it supports push/pop-style behavior without using the legacy Stack class.'},
+  {type:'Find the Bug',topic:'ArrayDeque',prompt:'Deque<String> dq = new ArrayDeque<>();\ndq.add(null); // later code assumes null is fine',answer:'Null elements are not allowed in ArrayDeque',explanation:'ArrayDeque rejects null elements. It uses null internally to represent empty-state conditions, so adding null is not supported.'},
+  {type:'Interview Challenge',topic:'ArrayList',prompt:'Which statement best describes ArrayList?',answer:'A resizable array that preserves insertion order and allows duplicates',explanation:'ArrayList is a resizable array-backed List. It preserves insertion order and can contain duplicate elements.'},
+  {type:'Scenario-Based',topic:'LinkedList',prompt:'Which collection implements both List and Deque, allowing operations at both ends?',answer:'LinkedList',explanation:'LinkedList implements List and Deque, so it supports list operations plus double-ended queue operations.'},
+  {type:'Interview Challenge',topic:'LinkedList',prompt:'Which statement about LinkedList is correct?',answer:'It is a doubly linked list and supports operations at both ends',explanation:'LinkedList is node-based and implements Deque, providing addFirst(), addLast(), removeFirst(), and removeLast().' },
+  {type:'Interview Challenge',topic:'HashSet',prompt:'What happens when an object stored in a HashSet is mutated so its hashCode() changes?',answer:'The set may not be able to find the object correctly',explanation:'Hash-based collections rely on stable equals() and hashCode() values while an object is stored.'},
+  {type:'Scenario-Based',topic:'HashSet',prompt:'Which collection should you use for unique usernames when iteration order is irrelevant?',answer:'HashSet',explanation:'HashSet represents a collection of unique elements without promising an iteration order.'},
+  {type:'Interview Challenge',topic:'TreeSet',prompt:'What is the defining behavior of TreeSet?',answer:'It stores unique elements in sorted order',explanation:'TreeSet is a sorted Set. It removes duplicates and iterates according to natural ordering or a Comparator.'},
+  {type:'Scenario-Based',topic:'HashMap',prompt:'Which collection maps each student ID to one Student object?',answer:'HashMap<Integer, Student>',explanation:'HashMap stores key-value associations, making the student ID the key and the Student object the value.'},
+  {type:'Interview Challenge',topic:'TreeMap',prompt:'When would you prefer TreeMap over HashMap?',answer:'When keys must remain sorted or range queries are needed',explanation:'TreeMap maintains keys in sorted order and provides navigation methods such as firstKey(), lastKey(), floorKey(), and ceilingKey().' }
+);
+
+// Achievements
+const achievements = [
+  {id:'arraylist_rookie', name:'ArrayList Rookie', icon:'🏆', check: s => s.completedModules.includes('ArrayList')},
+  {id:'linkedlist_explorer', name:'LinkedList Explorer', icon:'🏆', check: s => s.completedModules.includes('LinkedList')},
+  {id:'set_specialist', name:'Set Specialist', icon:'🏆', check: s => s.completedModules.includes('HashSet') && s.completedModules.includes('TreeSet')},
+  {id:'hashmap_master', name:'HashMap Master', icon:'🏆', check: s => s.completedModules.includes('HashMap') && s.completedModules.includes('TreeMap')},
+  {id:'queue_commander', name:'Queue Commander', icon:'🏆', check: s => s.completedModules.includes('Queue') && s.completedModules.includes('PriorityQueue')},
+  {id:'stream_ninja', name:'Stream Ninja', icon:'🏆', check: s => s.completedModules.includes('Streams')},
+  {id:'collections_architect', name:'Collections Architect', icon:'🏆', check: s => collectionOrder.every(c => s.completedModules.includes(c))}
+];
+
+// Project milestones
+const milestones = [
+  {id:'m1', title:'Create Student model'},
+  {id:'m2', title:'Store students using ArrayList'},
+  {id:'m3', title:'Add HashMap lookup'},
+  {id:'m4', title:'Add unique skills using HashSet'},
+  {id:'m5', title:'Implement Comparator ranking'},
+  {id:'m6', title:'Build search'},
+  {id:'m7', title:'Generate report'}
+];
+const features = [
+  {id:'f1', title:'Fast lookup using HashMap', why:'Searching a list of students for a specific ID with ArrayList is O(n) — every student has to be checked. A HashMap keyed by ID drops that to O(1) on average, because the ID hashes directly to a bucket.', code:'Map&lt;Integer, Student&gt; studentsById = new HashMap&lt;&gt;();\n\nstudentsById.put(student.getId(), student);\n\nStudent student = studentsById.get(101);'},
+  {id:'f2', title:'Unique skills using HashSet', why:'A student may list the same skill twice by mistake. Storing skills in a HashSet automatically keeps each skill unique with O(1) average add and contains.', code:'Set&lt;String&gt; skills = new HashSet&lt;&gt;();\nskills.add("Java");\nskills.add("Java"); // ignored, already present\nskills.add("SQL");'},
+  {id:'f3', title:'Ranking using Comparator', why:'Ranking students by score (and breaking ties by name) needs a custom order that isn\'t the class\'s natural order. Comparator composition builds this without touching the Student class.', code:'students.sort(\n  Comparator.comparing(Student::getScore).reversed()\n    .thenComparing(Student::getName)\n);'},
+  {id:'f4', title:'Storing students with ArrayList', why:'The full roster needs to preserve insertion order and support index-based iteration for reports — ArrayList\'s O(1) indexed access and predictable ordering fit that.', code:'List&lt;Student&gt; roster = new ArrayList&lt;&gt;();\nroster.add(new Student(101, "Asha", 91));\nroster.add(new Student(102, "Rahul", 88));'}
+];
+
+/* =========================================================
+   STATE
+========================================================= */
+const XP_RULES = { module:25, question:10, milestone:15, achievement:50 };
+let state = null;
+
+function defaultState(){
+  return {
+    xp:0,
+    completedModules:[],
+    completedQuestions:[],
+    completedMilestones:[],
+    achievements:[],
+    visualizer:{ type:'ArrayList' }
+  };
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem('jcl_state');
+    state = raw ? Object.assign(defaultState(), JSON.parse(raw)) : defaultState();
+  }catch(e){ state = defaultState(); }
+}
+function saveState(){
+  try{ localStorage.setItem('jcl_state', JSON.stringify(state)); }
+  catch(e){ /* storage unavailable — continue silently */ }
+}
+
+/* =========================================================
+   TOASTS
+========================================================= */
+const toastWrap = document.getElementById('toastWrap');
+function showToast(msg, type){
+  type = type || 'info';
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+  el.innerHTML = '<span>'+icon+'</span><span>'+msg+'</span>';
+  toastWrap.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('leaving');
+    setTimeout(() => el.remove(), 220);
+  }, 2600);
+}
+
+/* =========================================================
+   XP / PROGRESS
+========================================================= */
+function addXp(amount){
+  state.xp += amount;
+  saveState();
+  renderXP();
+  const pill = document.getElementById('xpPill');
+  pill.classList.remove('bump'); void pill.offsetWidth; pill.classList.add('bump');
+}
+function totalProgressPct(){
+  const totalUnits = collectionOrder.length + questions.length + milestones.length;
+  const doneUnits = state.completedModules.length + state.completedQuestions.length + state.completedMilestones.length;
+  return totalUnits === 0 ? 0 : Math.round((doneUnits/totalUnits)*100);
+}
+function renderXP(){
+  document.getElementById('xpVal').textContent = state.xp;
+  document.getElementById('heroXp').textContent = state.xp;
+}
+function renderProgress(){
+  const pct = totalProgressPct();
+  document.getElementById('navBarFill').style.width = pct+'%';
+  document.getElementById('navPct').textContent = pct+'%';
+  document.getElementById('heroBarFill').style.width = pct+'%';
+  document.getElementById('heroPct').textContent = pct+'%';
+  document.getElementById('heroModulesText').textContent = state.completedModules.length + ' / ' + collectionOrder.length + ' modules completed';
+}
+function checkAchievements(){
+  let newlyUnlocked = [];
+  achievements.forEach(a => {
+    if(!state.achievements.includes(a.id) && a.check(state)){
+      state.achievements.push(a.id);
+      newlyUnlocked.push(a);
+    }
+  });
+  if(newlyUnlocked.length){
+    saveState();
+    newlyUnlocked.forEach(a => {
+      state.xp += XP_RULES.achievement;
+      showToast('Achievement unlocked: '+a.name+' (+'+XP_RULES.achievement+' XP)', 'success');
+    });
+    saveState();
+    renderXP();
+    renderAchievements(true);
+  }
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+function scrollToSection(id){
+  if(id === 'top'){ window.scrollTo({top:0, behavior:'smooth'}); return; }
+  const el = document.getElementById(id);
+  if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); }
+}
+document.querySelectorAll('[data-scroll]').forEach(btn => {
+  btn.addEventListener('click', () => scrollToSection(btn.getAttribute('data-scroll')));
+});
+const navToggle = document.getElementById('navToggle');
+const mobileNav = document.getElementById('mobileNav');
+navToggle.addEventListener('click', () => {
+  mobileNav.style.display = mobileNav.style.display === 'none' ? 'flex' : 'none';
+});
+mobileNav.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { mobileNav.style.display = 'none'; }));
+
+const sectionIds = ['overview','collections','visualizer','practice','project','reference'];
+const navButtons = Array.from(document.querySelectorAll('.nav-links button[data-scroll]'));
+function updateActiveNav(){
+  let current = sectionIds[0];
+  for(const id of sectionIds){
+    const el = document.getElementById(id);
+    if(el && el.getBoundingClientRect().top - 100 <= 0) current = id;
+  }
+  navButtons.forEach(b => b.classList.toggle('active', b.getAttribute('data-scroll') === current));
+}
+window.addEventListener('scroll', updateActiveNav, {passive:true});
+
+/* =========================================================
+   COLLECTIONS GRID + MODAL
+========================================================= */
+const grid = document.getElementById('collectionsGrid');
+function renderModules(filterText){
+  filterText = (filterText||'').trim().toLowerCase();
+  grid.innerHTML = '';
+  let shown = 0;
+  collectionOrder.forEach(name => {
+    const c = collections[name];
+    const searchBlob = [name, c.type, c.kind, c.implements, c.extends, c.implementedBy].filter(Boolean).join(' ').toLowerCase();
+    if(filterText && !searchBlob.includes(filterText)) return;
+    shown++;
+    const done = state.completedModules.includes(name);
+    const card = document.createElement('button');
+    card.className = 'col-card' + (done ? ' completed' : '');
+    card.setAttribute('data-name', name);
+    const taxonomyClass = (c.kind || '').toLowerCase() === 'class' ? 'class' : 'interface';
+    card.innerHTML = `
+      <span class="done-check">✓ Completed</span>
+      <div class="top-row">
+        <span class="icon">${c.icon}</span>
+        <span class="badge ${c.badge}">${c.badge === 'other' ? c.type.split(' ')[0].toUpperCase() : c.badge.toUpperCase()}</span>
+      </div>
+      <h4>${name}</h4>
+      <div class="taxonomy">
+        <span class="tax-chip ${taxonomyClass}">${c.kind || 'Type'}</span>
+        <span class="tax-chip">${c.type}</span>
+      </div>
+      <p class="desc">${c.description}</p>
+      <div class="meta">
+        <span>${c.kind === 'Class' ? 'Implements' : c.kind === 'Interface' ? 'Children' : 'Role'}: <b>${c.kind === 'Class' ? (c.implements || '—') : c.kind === 'Interface' ? (c.implementedBy || '—') : c.type}</b></span>
+      </div>
+    `;
+    card.addEventListener('click', () => openCollection(name));
+    grid.appendChild(card);
+  });
+  document.getElementById('noResults').style.display = shown === 0 ? 'block' : 'none';
+}
+
+const collectionModal = document.getElementById('collectionModal');
+let activeCollection = null;
+function openCollection(name){
+  activeCollection = name;
+  const c = collections[name];
+  document.getElementById('modalTitle').textContent = name.toUpperCase();
+  document.getElementById('modalDesc').textContent = c.description;
+  document.getElementById('modalUseWhen').innerHTML = '<strong>' + (c.kind || 'TYPE').toUpperCase() + ':</strong> ' + c.useCase;
+  document.getElementById('modalHierarchy').innerHTML = [
+    '<div class="relation-row"><b>Name</b><span>' + name + '</span></div>',
+    '<div class="relation-row"><b>Kind</b><span>' + (c.kind || '—') + '</span></div>',
+    '<div class="relation-row"><b>Extends</b><span>' + (c.extends || '—') + '</span></div>',
+    '<div class="relation-row"><b>Implements</b><span>' + (c.implements || '—') + '</span></div>',
+    '<div class="relation-row"><b>Implemented By</b><span>' + (c.implementedBy || '—') + '</span></div>'
+  ].join('');
+
+  const pipelineEl = document.getElementById('modalPipeline');
+  if(c.isPipeline){
+    pipelineEl.innerHTML = `
+      <div class="modal-section-title">Pipeline</div>
+      <div class="pipeline">
+        <div class="pstep">Collection</div><div class="parrow">↓</div>
+        <div class="pstep">filter()</div><div class="parrow">↓</div>
+        <div class="pstep">map()</div><div class="parrow">↓</div>
+        <div class="pstep">sorted()</div><div class="parrow">↓</div>
+        <div class="pstep">collect()</div>
+      </div>`;
+  } else { pipelineEl.innerHTML = ''; }
+
+  document.getElementById('modalMethodsTitle').textContent = name === 'Streams' ? 'Stream Operations' : name === 'Comparator' ? 'Usage Examples' : c.kind === 'Interface' ? 'Common Interface Methods' : 'Core Methods';
+  const methodsEl = document.getElementById('modalMethods');
+  methodsEl.innerHTML = c.methods.map(m => `
+    <div class="method-row">
+      <code>${m.sig}</code>
+      <span class="m-desc">${m.desc}</span>
+      ${m.o !== '—' ? `<span class="m-o">${m.o}</span>` : '<span></span>'}
+    </div>
+  `).join('');
+
+  document.getElementById('modalProps').innerHTML = `
+    <div class="prop-box"><div class="k">Duplicates</div><div class="v">${c.duplicates}</div></div>
+    <div class="prop-box"><div class="k">Ordering</div><div class="v">${c.ordering}</div></div>
+    <div class="prop-box"><div class="k">Null</div><div class="v">${c.nulls}</div></div>
+    <div class="prop-box"><div class="k">Thread Safe</div><div class="v">${c.threadSafe}</div></div>
+  `;
+
+  const completeBtn = document.getElementById('modalCompleteBtn');
+  const done = state.completedModules.includes(name);
+  completeBtn.textContent = done ? '✓ Completed' : 'Mark as Complete +25 XP';
+  completeBtn.disabled = done;
+
+  const vizBtn = document.getElementById('modalVisualizerBtn');
+  vizBtn.disabled = !vizTypeMap[name];
+  vizBtn.textContent = vizTypeMap[name] ? 'Try in Visualizer' : 'Visualizer Not Available';
+
+  collectionModal.classList.add('open');
+}
+function closeCollectionModal(){ collectionModal.classList.remove('open'); }
+document.getElementById('modalCloseBtn').addEventListener('click', closeCollectionModal);
+collectionModal.addEventListener('click', e => { if(e.target === collectionModal) closeCollectionModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closeCollectionModal(); closeFeatureModal(); } });
+
+function completeModule(name){
+  if(state.completedModules.includes(name)) return;
+  state.completedModules.push(name);
+  addXp(XP_RULES.module);
+  saveState();
+  renderModules(document.getElementById('collectionSearch').value);
+  renderProgress();
+  checkAchievements();
+  showToast(name + ' marked complete (+25 XP)', 'success');
+}
+document.getElementById('modalCompleteBtn').addEventListener('click', () => {
+  if(!activeCollection) return;
+  completeModule(activeCollection);
+  openCollection(activeCollection);
+});
+const vizTypeMap = { ArrayList:'ArrayList', LinkedList:'LinkedList', HashSet:'HashSet', LinkedHashSet:'HashSet', TreeSet:'HashSet', HashMap:'HashMap', LinkedHashMap:'HashMap', TreeMap:'HashMap', Queue:'Queue', PriorityQueue:'PriorityQueue' };
+document.getElementById('modalVisualizerBtn').addEventListener('click', () => {
+  if(!activeCollection) return;
+  closeCollectionModal();
+  const target = vizTypeMap[activeCollection];
+  if(target){
+    document.getElementById('vizType').value = target;
+    switchVizType(target);
+  }
+  scrollToSection('visualizer');
+});
+
+document.getElementById('collectionSearch').addEventListener('input', e => renderModules(e.target.value));
+
+/* =========================================================
+   VISUALIZER
+========================================================= */
+const vizStage = document.getElementById('vizStage');
+const vizLog = document.getElementById('vizLog');
+const vizControls = document.getElementById('vizControls');
+const vizExplainer = document.getElementById('vizExplainer');
+const vizValueField = document.getElementById('vizValueField');
+const vizKeyField = document.getElementById('vizKeyField');
+const vizMapValField = document.getElementById('vizMapValField');
+const vizValue = document.getElementById('vizValue');
+const vizKey = document.getElementById('vizKey');
+const vizMapVal = document.getElementById('vizMapVal');
+
+let vizData = { list:[], set:[], map:[], queue:[], pq:[] };
+let vizOps = 0, vizLast = '—', vizSearchResult = '—';
+
+const explainers = {
+  ArrayList: 'Indexed, resizable storage. Elements keep their insertion order and are accessible in O(1) by index.',
+  LinkedList: 'A doubly linked list. Great for adding/removing at either end; indexed access walks the chain.',
+  HashSet: 'Stores only unique elements. Duplicate additions are silently ignored.',
+  HashMap: 'Stores key → value mappings. Putting an existing key overwrites its value.',
+  Queue: 'First-In-First-Out. New items join the rear; poll always removes the front.',
+  PriorityQueue: 'A min-heap. Poll always returns the smallest-priority element, not the oldest.'
+};
+
+function logOp(text){
+  const now = new Date();
+  const t = now.toTimeString().slice(0,8);
+  if(vizLog.querySelector('.log-empty')) vizLog.innerHTML = '';
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = '<span class="t">'+t+'</span>'+text;
+  vizLog.prepend(entry);
+  vizOps++;
+  document.getElementById('statOps').textContent = vizOps;
+}
+function setLast(op){ vizLast = op; document.getElementById('statLast').textContent = op; }
+function setSearch(res){ vizSearchResult = res; document.getElementById('statSearch').textContent = res; }
+function setSize(n){ document.getElementById('statSize').textContent = n; }
+
+function currentType(){ return document.getElementById('vizType').value; }
+
+function switchVizType(type){
+  document.getElementById('vizType').value = type;
+  state.visualizer.type = type;
+  saveState();
+  vizExplainer.textContent = explainers[type];
+  vizValueField.style.display = type === 'HashMap' ? 'none' : 'flex';
+  vizKeyField.style.display = type === 'HashMap' ? 'flex' : 'none';
+  vizMapValField.style.display = type === 'HashMap' ? 'flex' : 'none';
+  renderVizControls(type);
+  renderVisualizer();
+  setSearch('—'); setLast('—');
+}
+document.getElementById('vizType').addEventListener('change', e => switchVizType(e.target.value));
+
+function renderVizControls(type){
+  vizControls.innerHTML = '';
+  const buttons = [];
+  if(type === 'HashMap'){
+    buttons.push({label:'Put', action:mapPut, cls:'btn-primary'});
+    buttons.push({label:'Get', action:mapGet, cls:'btn-ghost'});
+    buttons.push({label:'Remove', action:mapRemove, cls:'btn-ghost'});
+    buttons.push({label:'Contains Key', action:mapContainsKey, cls:'btn-ghost'});
+    buttons.push({label:'Clear', action:vizClear, cls:'btn-danger'});
+  } else if(type === 'Queue'){
+    buttons.push({label:'Offer (Add)', action:queueOffer, cls:'btn-primary'});
+    buttons.push({label:'Poll (Remove Front)', action:queuePoll, cls:'btn-ghost'});
+    buttons.push({label:'Search', action:queueSearch, cls:'btn-ghost'});
+    buttons.push({label:'Clear', action:vizClear, cls:'btn-danger'});
+  } else if(type === 'PriorityQueue'){
+    buttons.push({label:'Offer (Add)', action:pqOffer, cls:'btn-primary'});
+    buttons.push({label:'Poll (Highest Priority)', action:pqPoll, cls:'btn-ghost'});
+    buttons.push({label:'Search', action:pqSearch, cls:'btn-ghost'});
+    buttons.push({label:'Clear', action:vizClear, cls:'btn-danger'});
+  } else if(type === 'HashSet'){
+    buttons.push({label:'Add Item', action:setAdd, cls:'btn-primary'});
+    buttons.push({label:'Remove Item', action:setRemove, cls:'btn-ghost'});
+    buttons.push({label:'Search Item', action:setSearchItem, cls:'btn-ghost'});
+    buttons.push({label:'Clear', action:vizClear, cls:'btn-danger'});
+  } else {
+    buttons.push({label:'Add Item', action:listAdd, cls:'btn-primary'});
+    buttons.push({label:'Remove Item', action:listRemove, cls:'btn-ghost'});
+    buttons.push({label:'Search Item', action:listSearch, cls:'btn-ghost'});
+    buttons.push({label:'Sort Data', action:listSort, cls:'btn-ghost'});
+    buttons.push({label:'Clear', action:vizClear, cls:'btn-danger'});
+  }
+  buttons.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-sm ' + b.cls;
+    btn.textContent = b.label;
+    btn.addEventListener('click', b.action);
+    vizControls.appendChild(btn);
+  });
+}
+
+function readValue(){ return vizValue.value.trim(); }
+function clearValueInput(){ vizValue.value = ''; }
+
+/* ---- ArrayList / LinkedList ---- */
+function listAdd(){
+  const v = readValue();
+  if(!v){ showToast('Enter a value to add.', 'error'); return; }
+  vizData.list.push(v);
+  logOp('ADD '+v);
+  setLast('ADD');
+  renderVisualizer();
+  clearValueInput();
+}
+function listRemove(){
+  const v = readValue();
+  if(!v){ showToast('Enter a value to remove.', 'error'); return; }
+  const idx = vizData.list.indexOf(v);
+  if(idx === -1){ showToast('"'+v+'" not found — nothing removed.', 'error'); logOp('REMOVE '+v+' → NOT FOUND'); setLast('REMOVE'); return; }
+  animateRemoveAt(idx, () => {
+    vizData.list.splice(idx,1);
+    renderVisualizer();
+  });
+  logOp('REMOVE '+v);
+  setLast('REMOVE');
+  clearValueInput();
+}
+function listSearch(){
+  const v = readValue();
+  if(!v){ showToast('Enter a value to search.', 'error'); return; }
+  const idx = vizData.list.indexOf(v);
+  renderVisualizer();
+  if(idx !== -1){
+    const el = vizStage.children[idx];
+    if(el) el.classList.add('found');
+    setSearch('Found at index '+idx);
+    logOp('SEARCH '+v+' → FOUND at index '+idx);
+  } else {
+    setSearch('Not found');
+    logOp('SEARCH '+v+' → NOT FOUND');
+  }
+  setLast('SEARCH');
+}
+function listSort(){
+  vizData.list.sort((a,b) => {
+    const na = Number(a), nb = Number(b);
+    if(!isNaN(na) && !isNaN(nb)) return na-nb;
+    return a.localeCompare(b);
+  });
+  logOp('SORT');
+  setLast('SORT');
+  renderVisualizer();
+}
+function animateRemoveAt(idx, done){
+  const el = vizStage.children[idx];
+  if(el){ el.classList.add('removing'); setTimeout(done, 260); }
+  else done();
+}
+
+/* ---- HashSet ---- */
+function setAdd(){
+  const v = readValue();
+  if(!v){ showToast('Enter a value to add.', 'error'); return; }
+  if(vizData.set.includes(v)){
+    logOp('ADD '+v+' → DUPLICATE IGNORED');
+    setLast('ADD');
+    renderVisualizer();
+    const idx = vizData.set.indexOf(v);
+    const el = vizStage.children[idx];
+    if(el) el.classList.add('dup-flash');
+    showToast('Duplicate ignored — HashSet only stores unique elements.', 'error');
+    setTimeout(() => { if(el) el.classList.remove('dup-flash'); }, 450);
+    clearValueInput();
+    return;
+  }
+  vizData.set.push(v);
+  logOp('ADD '+v);
+  setLast('ADD');
+  renderVisualizer();
+  clearValueInput();
+}
+function setRemove(){
+  const v = readValue();
+  if(!v){ showToast('Enter a value to remove.', 'error'); return; }
+  const idx = vizData.set.indexOf(v);
+  if(idx === -1){ showToast('"'+v+'" not found — nothing removed.', 'error'); logOp('REMOVE '+v+' → NOT FOUND'); setLast('REMOVE'); return; }
+  animateRemoveAt(idx, () => { vizData.set.splice(idx,1); renderVisualizer(); });
+  logOp('REMOVE '+v);
+  setLast('REMOVE');
+  clearValueInput();
+}
+function setSearchItem(){
+  const v = readValue();
+  if(!v){ showToast('Enter a value to search.', 'error'); return; }
+  const idx = vizData.set.indexOf(v);
+  renderVisualizer();
+  if(idx !== -1){
+    const el = vizStage.children[idx];
+    if(el) el.classList.add('found');
+    setSearch('Found');
+    logOp('SEARCH '+v+' → FOUND');
+  } else { setSearch('Not found'); logOp('SEARCH '+v+' → NOT FOUND'); }
+  setLast('SEARCH');
+}
+
+/* ---- HashMap ---- */
+function mapPut(){
+  const k = vizKey.value.trim(), v = vizMapVal.value.trim();
+  if(!k || !v){ showToast('Enter both a key and a value.', 'error'); return; }
+  const existing = vizData.map.find(e => e.k === k);
+  if(existing){ existing.v = v; logOp('PUT '+k+' → '+v+' (updated)'); }
+  else { vizData.map.push({k,v}); logOp('PUT '+k+' → '+v); }
+  setLast('PUT');
+  renderVisualizer();
+  vizKey.value=''; vizMapVal.value='';
+}
+function mapGet(){
+  const k = vizKey.value.trim();
+  if(!k){ showToast('Enter a key to get.', 'error'); return; }
+  const entry = vizData.map.find(e => e.k === k);
+  renderVisualizer();
+  if(entry){
+    const idx = vizData.map.indexOf(entry);
+    const row = vizStage.querySelectorAll('tbody tr')[idx];
+    if(row) row.classList.add('flash');
+    setSearch(entry.v);
+    logOp('GET '+k+' → '+entry.v);
+  } else { setSearch('null'); logOp('GET '+k+' → null (not found)'); }
+  setLast('GET');
+}
+function mapRemove(){
+  const k = vizKey.value.trim();
+  if(!k){ showToast('Enter a key to remove.', 'error'); return; }
+  const idx = vizData.map.findIndex(e => e.k === k);
+  if(idx === -1){ showToast('Key "'+k+'" not found.', 'error'); logOp('REMOVE '+k+' → NOT FOUND'); setLast('REMOVE'); return; }
+  vizData.map.splice(idx,1);
+  logOp('REMOVE '+k);
+  setLast('REMOVE');
+  renderVisualizer();
+}
+function mapContainsKey(){
+  const k = vizKey.value.trim();
+  if(!k){ showToast('Enter a key to check.', 'error'); return; }
+  const has = vizData.map.some(e => e.k === k);
+  setSearch(has ? '✓ Key exists' : '✕ Key does not exist');
+  logOp('CONTAINS_KEY '+k+' → '+(has ? 'true' : 'false'));
+  setLast('CONTAINS_KEY');
+}
+
+/* ---- Queue ---- */
+function queueOffer(){
+  const v = readValue();
+  if(!v){ showToast('Enter a value to offer.', 'error'); return; }
+  vizData.queue.push(v);
+  logOp('OFFER '+v);
+  setLast('OFFER');
+  renderVisualizer();
+  clearValueInput();
+}
+function queuePoll(){
+  if(vizData.queue.length === 0){ showToast('Queue is empty.', 'error'); logOp('POLL → EMPTY'); setLast('POLL'); return; }
+  const removed = vizData.queue[0];
+  animateRemoveAt(0, () => { vizData.queue.shift(); renderVisualizer(); });
+  logOp('POLL → '+removed+' removed');
+  setLast('POLL');
+}
+function queueSearch(){
+  const v = readValue();
+  if(!v){ showToast('Enter a value to search.', 'error'); return; }
+  const idx = vizData.queue.indexOf(v);
+  renderVisualizer();
+  if(idx !== -1){ const el = vizStage.children[idx]; if(el) el.classList.add('found'); setSearch('Found'); logOp('SEARCH '+v+' → FOUND'); }
+  else { setSearch('Not found'); logOp('SEARCH '+v+' → NOT FOUND'); }
+  setLast('SEARCH');
+}
+
+/* ---- PriorityQueue (min-heap by numeric value, falls back to string) ---- */
+function pqSortedView(){
+  return [...vizData.pq].sort((a,b) => {
+    const na = Number(a), nb = Number(b);
+    if(!isNaN(na) && !isNaN(nb)) return na-nb;
+    return a.localeCompare(b);
+  });
+}
+function pqOffer(){
+  const v = readValue();
+  if(!v){ showToast('Enter a value to offer.', 'error'); return; }
+  vizData.pq.push(v);
+  logOp('OFFER '+v);
+  setLast('OFFER');
+  renderVisualizer();
+  clearValueInput();
+}
+function pqPoll(){
+  if(vizData.pq.length === 0){ showToast('PriorityQueue is empty.', 'error'); logOp('POLL → EMPTY'); setLast('POLL'); return; }
+  const sorted = pqSortedView();
+  const top = sorted[0];
+  const idx = vizData.pq.indexOf(top);
+  vizData.pq.splice(idx,1);
+  const nextSorted = pqSortedView();
+  logOp('POLL → '+top+' removed (highest priority)'+(nextSorted.length ? '. Next priority → '+nextSorted[0] : ''));
+  setLast('POLL');
+  renderVisualizer();
+  showToast('PriorityQueue does not behave like FIFO — elements are retrieved by priority.', 'info');
+}
+function pqSearch(){
+  const v = readValue();
+  if(!v){ showToast('Enter a value to search.', 'error'); return; }
+  const found = vizData.pq.includes(v);
+  renderVisualizer();
+  if(found){
+    const sorted = pqSortedView();
+    const idx = sorted.indexOf(v);
+    const el = vizStage.children[idx];
+    if(el) el.classList.add('found');
+    setSearch('Found');
+    logOp('SEARCH '+v+' → FOUND');
+  } else { setSearch('Not found'); logOp('SEARCH '+v+' → NOT FOUND'); }
+  setLast('SEARCH');
+}
+
+function vizClear(){
+  const type = currentType();
+  if(type === 'HashMap') vizData.map = [];
+  else if(type === 'HashSet') vizData.set = [];
+  else if(type === 'Queue') vizData.queue = [];
+  else if(type === 'PriorityQueue') vizData.pq = [];
+  else vizData.list = [];
+  logOp('CLEAR');
+  setLast('CLEAR');
+  setSearch('—');
+  renderVisualizer();
+}
+
+function renderVisualizer(){
+  const type = currentType();
+  vizStage.innerHTML = '';
+  let items = [];
+  let isEmpty = true;
+
+  if(type === 'HashMap'){
+    if(vizData.map.length === 0){
+      vizStage.innerHTML = '<span class="viz-empty">No entries yet — put a key/value pair to begin.</span>';
+    } else {
+      isEmpty = false;
+      const table = document.createElement('table');
+      table.className = 'viz-map-table';
+      table.style.width='100%';
+      table.innerHTML = '<thead><tr><th>Key</th><th>Value</th></tr></thead><tbody>' +
+        vizData.map.map(e => `<tr><td>${e.k}</td><td>${e.v}</td></tr>`).join('') + '</tbody>';
+      vizStage.appendChild(table);
+    }
+    setSize(vizData.map.length);
+  } else if(type === 'Queue'){
+    items = vizData.queue;
+    if(items.length){
+      isEmpty = false;
+      items.forEach((v,i) => {
+        const d = document.createElement('div');
+        d.className = 'viz-item' + (i===0?' head-tag':'') + (i===items.length-1?' tail-tag':'');
+        d.textContent = v;
+        vizStage.appendChild(d);
+      });
+    }
+    setSize(items.length);
+  } else if(type === 'PriorityQueue'){
+    items = pqSortedView();
+    if(items.length){
+      isEmpty = false;
+      items.forEach((v,i) => {
+        const d = document.createElement('div');
+        d.className = 'viz-item';
+        d.innerHTML = (i===0 ? '<span class="idx">TOP</span>' : '<span class="idx">'+i+'</span>') + v;
+        vizStage.appendChild(d);
+      });
+    }
+    setSize(vizData.pq.length);
+  } else if(type === 'HashSet'){
+    items = vizData.set;
+    if(items.length){
+      isEmpty = false;
+      items.forEach(v => {
+        const d = document.createElement('div');
+        d.className = 'viz-item';
+        d.textContent = v;
+        vizStage.appendChild(d);
+      });
+    }
+    setSize(items.length);
+  } else {
+    items = vizData.list;
+    if(items.length){
+      isEmpty = false;
+      items.forEach((v,i) => {
+        const d = document.createElement('div');
+        d.className = 'viz-item';
+        d.innerHTML = '<span class="idx">['+i+']</span>'+v;
+        vizStage.appendChild(d);
+      });
+    }
+    setSize(items.length);
+  }
+  if(isEmpty && type !== 'HashMap'){
+    vizStage.innerHTML = '<span class="viz-empty">Nothing here yet — add an item to begin.</span>';
+  }
+}
+
+/* =========================================================
+   PRACTICE ARENA
+========================================================= */
+const qList = document.getElementById('qList');
+const qFilters = document.getElementById('qFilters');
+let activeFilter = 'All';
+const allTopics = ['All', ...Array.from(new Set(questions.map(q => q.topic))), 'MCQ', 'Match the Following', 'Fill in the Blank', 'Output Prediction', 'Find the Bug', 'Arrange the Code'];
+
+function renderFilters(){
+  qFilters.innerHTML = '';
+  allTopics.forEach(topic => {
+    const chip = document.createElement('button');
+    chip.className = 'chip' + (topic === activeFilter ? ' active' : '');
+    chip.textContent = topic;
+    chip.addEventListener('click', () => { activeFilter = topic; renderFilters(); renderQuestions(); });
+    qFilters.appendChild(chip);
+  });
+}
+
+function renderQuestions(){
+  qList.innerHTML = '';
+  questions.forEach((q, i) => {
+    const isMcq = !['Match the Following','Fill in the Blank','Output Prediction','Find the Bug','Arrange the Code'].includes(q.type);
+    if(activeFilter !== 'All' && q.topic !== activeFilter && q.type !== activeFilter && !(activeFilter === 'MCQ' && isMcq)) return;
+    const solved = state.completedQuestions.includes(i);
+    const interaction = questionInteraction(q, i);
+    const card = document.createElement('div');
+    card.className = 'q-card' + (solved ? ' solved' : '');
+    card.setAttribute('data-question', i);
+    card.innerHTML = `
+      <div class="q-head">
+        <span class="q-num">Question #${String(i+1).padStart(2,'0')} · ${q.topic}</span>
+        <span class="badge other">${q.type}</span>
+      </div>
+      <div class="q-prompt"><div class="code-block">${escapeHtml(q.prompt)}</div></div>
+      ${interaction}
+      <div class="q-feedback" data-feedback="${i}"></div>
+      <div class="q-answer" data-idx="${i}">
+        <div class="ans-val">Answer: ${escapeHtml(q.answer)}</div>
+        <div class="ans-exp">${q.explanation}</div>
+      </div>
+      <div class="q-actions">
+        <button class="btn btn-ghost btn-sm reveal-btn" data-idx="${i}">Reveal Answer</button>
+        <button class="btn btn-primary btn-sm check-btn" data-idx="${i}" ${solved?'disabled':''}>
+          ${solved ? '✓ Completed' : "I Got It +10 XP"}
+        </button>
+        <span class="solved-tag" ${solved?'':'style="display:none"'}>âœ“ Completed</span>
+      </div>
+    `;
+    qList.appendChild(card);
+  });
+  qList.querySelectorAll('.reveal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = btn.getAttribute('data-idx');
+      const ansEl = qList.querySelector('.q-answer[data-idx="'+idx+'"]');
+      ansEl.classList.toggle('shown');
+      btn.textContent = ansEl.classList.contains('shown') ? 'Hide Answer' : 'Reveal Answer';
+    });
+  });
+  qList.querySelectorAll('.check-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.getAttribute('data-idx'));
+      checkQuestion(idx, qList.querySelector('.q-card[data-question="'+idx+'"]'));
+    });
+  });
+}
+function questionInteraction(q, i){
+  if(q.type === 'Fill in the Blank') return '<select class="q-select" data-answer="'+i+'"><option value="">Choose the missing word...</option>'+mcqOptions(q).map(option => '<option value="'+escapeHtml(option)+'">'+escapeHtml(option)+'</option>').join('')+'</select>';
+  if(q.type === 'Output Prediction') return choiceMarkup(mcqOptions(q), i);
+  if(q.type === 'Find the Bug') return choiceMarkup(bugOptions(q), i);
+  if(q.type === 'Match the Following') return '<div class="q-match-grid"><span class="match-label">Ordered collection</span><select class="q-match-select" data-match="ordered"><option value="">Choose...</option><option>List</option><option>Deque</option></select><span class="match-label">Double-ended queue</span><select class="q-match-select" data-match="deque"><option value="">Choose...</option><option>List</option><option>Deque</option></select></div>';
+  if(q.type === 'Arrange the Code') return '<select class="q-select" data-answer="'+i+'"><option value="">Choose the correct order...</option><option>B → C → A</option><option>C → A → B</option><option>A → B → C</option></select>';
+  return choiceMarkup(mcqOptions(q), i);
+}
+function choiceMarkup(options, i){
+  return '<div class="q-choice-list">'+options.map(option => '<label class="q-choice"><input type="radio" name="q-'+i+'" value="'+escapeHtml(option)+'"><span>'+escapeHtml(option)+'</span></label>').join('')+'</div><div class="q-type-help">Choose one answer, then check it.</div>';
+}
+function bugOptions(q){
+  const options = {
+    ArrayList:['UnsupportedOperationException — List.of() is immutable','IndexOutOfBoundsException — index is too large','ConcurrentModificationException — list is modified during iteration','No bug — add() works normally'],
+    HashSet:['Missing equals()/hashCode() — logically equal objects are treated as different','HashSet sorts elements incorrectly','HashSet does not allow custom objects','NullPointerException from add()'],
+    HashMap:['NullPointerException when v.length() is called because get() returned null','HashMap cannot use Integer keys','ClassCastException from get()','ConcurrentModificationException from get()'],
+    Queue:['NoSuchElementException — remove() throws when the queue is empty; use poll()','UnsupportedOperationException — LinkedList cannot be a Queue','NullPointerException from remove()','There is no bug']
+  };
+  return options[q.topic] || [q.answer,'Syntax error in the class declaration','The collection is always sorted','There is no bug'];
+}
+function mcqOptions(q){
+  const distractors = {
+    ArrayList:['HashSet stores unique values','TreeMap stores key-value pairs','Queue removes from the front'], LinkedList:['HashSet','TreeSet','HashMap'],
+    HashSet:['ArrayList','HashMap','TreeSet'], TreeSet:['HashMap','LinkedList','Queue'],
+    HashMap:['Yes, duplicate keys are stored','TreeSet','It stores only values'], TreeMap:['HashSet','When insertion order matters','Queue'],
+    Queue:['Stack','PriorityQueue','HashMap'], PriorityQueue:['Queue','ArrayList','HashSet'],
+    Comparator:['They are exactly the same','Comparable is external; Comparator is internal','Comparator stores elements'],
+    Streams:['Yes, it stores elements','Yes, it is a List','Only after collect()']
+  };
+  return [q.answer, ...(distractors[q.topic] || ['None of these','It depends on the JVM','Always O(n)'])].filter((v,n,a)=>a.indexOf(v)===n).sort(()=>Math.random()-.5);
+}
+function checkQuestion(idx, card){
+  if(!card || state.completedQuestions.includes(idx)) return;
+  const q = questions[idx]; let given = '';
+  if(q.type === 'Match the Following'){
+    const ordered = card.querySelector('[data-match="ordered"]').value;
+    const deque = card.querySelector('[data-match="deque"]').value;
+    given = ordered === 'List' && deque === 'Deque' ? 'correct' : ordered+' '+deque;
+  } else if(card.querySelector('input[type="radio"]')){
+    const selected = card.querySelector('input[type="radio"]:checked'); given = selected ? selected.value : '';
+  } else { const input = card.querySelector('[data-answer="'+idx+'"]'); given = input ? input.value.trim() : ''; }
+  const expected = q.answer.toLowerCase().replace(/\s+/g,' ').trim();
+  const actual = given.toLowerCase().replace(/\s+/g,' ').trim();
+  const correct = q.type === 'Match the Following' ? given === 'correct' :
+    q.type === 'Find the Bug' ? (actual.includes('unsupportedoperationexception') || (actual.includes('equals') && actual.includes('hashcode')) || actual.includes('nullpointerexception') || actual.includes('nosuchelementexception')) :
+    actual === expected || (q.type === 'Arrange the Code' && actual.replace(/\s/g,'') === 'b→c→a');
+  const feedback = card.querySelector('[data-feedback="'+idx+'"]');
+  feedback.className = 'q-feedback show '+(correct ? 'correct' : 'incorrect');
+  feedback.textContent = correct ? 'Correct! +10 XP' : (given ? 'Not quite. Try again or show the explanation.' : 'Choose or enter an answer first.');
+  card.classList.toggle('answered-correct', correct); card.classList.toggle('answered-wrong', !correct);
+  if(correct){ completeQuestion(idx); card.querySelector('.check-btn').disabled = true; card.querySelector('.solved-tag').style.display = 'flex'; }
+}
+function questionInteraction(q, i){
+  if(q.type === 'Fill in the Blank') return '<select class="q-select" data-answer="'+i+'"><option value="">Choose the missing word...</option>'+mcqOptions(q).map(option => '<option value="'+escapeHtml(option)+'">'+escapeHtml(option)+'</option>').join('')+'</select>';
+  if(q.type === 'Output Prediction') return choiceMarkup(mcqOptions(q), i);
+  if(q.type === 'Find the Bug') return choiceMarkup(bugOptions(q), i);
+  if(q.type === 'Match the Following'){
+    if(q.topic === 'NavigableMap') return '<div class="q-match-grid"><span class="match-label">Exact or lower key</span><select class="q-match-select" data-match="lower"><option value="">Choose...</option><option>floorKey</option><option>ceilingKey</option></select><span class="match-label">Exact or higher key</span><select class="q-match-select" data-match="higher"><option value="">Choose...</option><option>floorKey</option><option>ceilingKey</option></select></div>';
+    return '<div class="q-match-grid"><span class="match-label">Ordered collection</span><select class="q-match-select" data-match="ordered"><option value="">Choose...</option><option>List</option><option>Deque</option></select><span class="match-label">Double-ended queue</span><select class="q-match-select" data-match="deque"><option value="">Choose...</option><option>List</option><option>Deque</option></select></div>';
+  }
+  if(q.type === 'Arrange the Code') return '<select class="q-select" data-answer="'+i+'"><option value="">Choose the correct order...</option><option>B â†’ C â†’ A</option><option>C â†’ A â†’ B</option><option>A â†’ B â†’ C</option></select>';
+  return choiceMarkup(mcqOptions(q), i);
+}
+function bugOptions(q){
+  const options = {
+    ArrayList:['UnsupportedOperationException â€” List.of() is immutable','IndexOutOfBoundsException â€” index is too large','ConcurrentModificationException â€” list is modified during iteration','No bug â€” add() works normally'],
+    SortedSet:['Wrong assumption about insertion order','TreeSet cannot store integers','SortedSet always allows duplicates','There is no bug'],
+    HashSet:['Missing equals()/hashCode() â€” logically equal objects are treated as different','HashSet sorts elements incorrectly','HashSet does not allow custom objects','NullPointerException from add()'],
+    HashMap:['NullPointerException when v.length() is called because get() returned null','HashMap cannot use Integer keys','ClassCastException from get()','ConcurrentModificationException from get()'],
+    Queue:['NoSuchElementException â€” remove() throws when the queue is empty; use poll()','UnsupportedOperationException â€” LinkedList cannot be a Queue','NullPointerException from remove()','There is no bug'],
+    ArrayDeque:['Null elements are not allowed in ArrayDeque','ArrayDeque is always sorted','ArrayDeque cannot be used as a Deque','There is no bug']
+  };
+  return options[q.topic] || [q.answer,'Syntax error in the class declaration','The collection is always sorted','There is no bug'];
+}
+function mcqOptions(q){
+  const distractors = {
+    Collection:['It stores only key-value pairs','It guarantees sorted elements','It is only for unique elements'],
+    ArrayList:['HashSet stores unique values','TreeMap stores key-value pairs','Queue removes from the front'],
+    LinkedList:['HashSet','TreeSet','HashMap'],
+    HashSet:['ArrayList','HashMap','TreeSet'],
+    LinkedHashSet:['HashMap','PriorityQueue','TreeMap'],
+    SortedSet:['It stores duplicate elements in sorted order','It preserves only insertion order','It is a key-value structure'],
+    NavigableSet:['It only adds index-based access','It removes ordering guarantees','It is used only for duplicate values'],
+    TreeSet:['HashMap','LinkedList','Queue'],
+    Map:['It stores only values without keys','It guarantees duplicate keys','It is always index-based'],
+    SortedMap:['It preserves only insertion order','It allows duplicate keys','It stores only elements, not mappings'],
+    NavigableMap:['It removes key ordering','It is only a List view','It allows duplicate keys for the same entry'],
+    HashMap:['Yes, duplicate keys are stored','TreeSet','It stores only values'],
+    LinkedHashMap:['It discards iteration order completely','It allows duplicate keys as separate entries','It stores only values'],
+    TreeMap:['HashSet','When insertion order matters','Queue'],
+    Queue:['Stack','PriorityQueue','HashMap'],
+    ArrayDeque:['It allows null elements freely','It is only a Map implementation','It guarantees sorted retrieval'],
+    PriorityQueue:['Queue','ArrayList','HashSet'],
+    Comparator:['They are exactly the same','Comparable is external; Comparator is internal','Comparator stores elements'],
+    Streams:['Yes, it stores elements','Yes, it is a List','Only after collect()']
+  };
+  return [q.answer, ...(distractors[q.topic] || ['None of these','It depends on the JVM','Always O(n)'])].filter((v,n,a)=>a.indexOf(v)===n).sort(()=>Math.random()-.5);
+}
+function checkQuestion(idx, card){
+  if(!card || state.completedQuestions.includes(idx)) return;
+  const q = questions[idx]; let given = '';
+  if(q.type === 'Match the Following'){
+    if(q.topic === 'NavigableMap'){
+      const lower = card.querySelector('[data-match="lower"]').value;
+      const higher = card.querySelector('[data-match="higher"]').value;
+      given = lower === 'floorKey' && higher === 'ceilingKey' ? 'correct' : lower+' '+higher;
+    } else {
+      const ordered = card.querySelector('[data-match="ordered"]').value;
+      const deque = card.querySelector('[data-match="deque"]').value;
+      given = ordered === 'List' && deque === 'Deque' ? 'correct' : ordered+' '+deque;
+    }
+  } else if(card.querySelector('input[type="radio"]')){
+    const selected = card.querySelector('input[type="radio"]:checked'); given = selected ? selected.value : '';
+  } else {
+    const input = card.querySelector('[data-answer="'+idx+'"]'); given = input ? input.value.trim() : '';
+  }
+  const expected = q.answer.toLowerCase().replace(/\s+/g,' ').trim();
+  const actual = given.toLowerCase().replace(/\s+/g,' ').trim();
+  const correct = q.type === 'Match the Following' ? given === 'correct' :
+    q.type === 'Find the Bug' ? (actual.includes('unsupportedoperationexception') || actual.includes('wrong assumption about insertion order') || (actual.includes('equals') && actual.includes('hashcode')) || actual.includes('nullpointerexception') || actual.includes('nosuchelementexception') || actual.includes('null elements are not allowed in arraydeque')) :
+    actual === expected || (q.type === 'Arrange the Code' && actual.replace(/\s/g,'') === 'bâ†’câ†’a');
+  const feedback = card.querySelector('[data-feedback="'+idx+'"]');
+  feedback.className = 'q-feedback show '+(correct ? 'correct' : 'incorrect');
+  feedback.textContent = correct ? 'Correct! +10 XP' : (given ? 'Not quite. Try again or show the explanation.' : 'Choose or enter an answer first.');
+  card.classList.toggle('answered-correct', correct); card.classList.toggle('answered-wrong', !correct);
+  if(correct){ completeQuestion(idx); card.querySelector('.check-btn').disabled = true; card.querySelector('.solved-tag').style.display = 'flex'; }
+}
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function completeQuestion(idx){
+  if(state.completedQuestions.includes(idx)) return;
+  state.completedQuestions.push(idx);
+  addXp(XP_RULES.question);
+  saveState();
+  renderQuestions();
+  renderProgress();
+  showToast('Nice work! +10 XP', 'success');
+}
+
+/* =========================================================
+   PROJECT
+========================================================= */
+const milestoneList = document.getElementById('milestoneList');
+function renderMilestones(){
+  milestoneList.innerHTML = '';
+  milestones.forEach(m => {
+    const done = state.completedMilestones.includes(m.id);
+    const row = document.createElement('div');
+    row.className = 'milestone' + (done ? ' done' : '');
+    row.setAttribute('role','checkbox');
+    row.setAttribute('aria-checked', done ? 'true':'false');
+    row.tabIndex = 0;
+    row.innerHTML = `<div class="box">${done ? '✓' : ''}</div><div class="m-title">${m.title}</div>`;
+    const toggle = () => toggleMilestone(m.id);
+    row.addEventListener('click', toggle);
+    row.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); } });
+    milestoneList.appendChild(row);
+  });
+  const done = state.completedMilestones.length;
+  const pct = Math.round((done/milestones.length)*100);
+  document.getElementById('projBarFill').style.width = pct+'%';
+  document.getElementById('projPct').textContent = pct+'%';
+  document.getElementById('projText').textContent = done+' / '+milestones.length+' milestones completed';
+}
+function toggleMilestone(id){
+  const idx = state.completedMilestones.indexOf(id);
+  if(idx === -1){
+    state.completedMilestones.push(id);
+    addXp(XP_RULES.milestone);
+    showToast('Milestone complete (+15 XP)', 'success');
+  } else {
+    state.completedMilestones.splice(idx,1);
+  }
+  saveState();
+  renderMilestones();
+  renderProgress();
+}
+
+const featureList = document.getElementById('featureList');
+function renderFeatures(){
+  featureList.innerHTML = '';
+  features.forEach(f => {
+    const item = document.createElement('button');
+    item.className = 'feature-item';
+    item.innerHTML = `<h4>${f.title}</h4><p>Click to see why, and view example Java code.</p>`;
+    item.addEventListener('click', () => openFeature(f.id));
+    featureList.appendChild(item);
+  });
+}
+const featureModal = document.getElementById('featureModal');
+function openFeature(id){
+  const f = features.find(x => x.id === id);
+  if(!f) return;
+  document.getElementById('featureModalTitle').textContent = f.title;
+  document.getElementById('featureModalWhy').textContent = f.why;
+  document.getElementById('featureModalCode').innerHTML = f.code;
+  featureModal.classList.add('open');
+}
+function closeFeatureModal(){ featureModal.classList.remove('open'); }
+document.getElementById('featureModalCloseBtn').addEventListener('click', closeFeatureModal);
+featureModal.addEventListener('click', e => { if(e.target === featureModal) closeFeatureModal(); });
+
+/* ---- Achievements ---- */
+const achieveGrid = document.getElementById('achieveGrid');
+function renderAchievements(animateNew){
+  achieveGrid.innerHTML = '';
+  achievements.forEach(a => {
+    const unlocked = state.achievements.includes(a.id);
+    const el = document.createElement('div');
+    el.className = 'achieve' + (unlocked ? ' unlocked' : '');
+    el.innerHTML = `<div class="a-icon">${a.icon}</div><div class="a-name">${a.name}</div><div class="a-lock">${unlocked ? 'Unlocked' : 'Locked'}</div>`;
+    if(unlocked && animateNew) el.classList.add('pop');
+    achieveGrid.appendChild(el);
+  });
+}
+
+/* =========================================================
+   REFERENCE
+========================================================= */
+const refTabs = document.getElementById('refTabs');
+let activeRefTab = 'ArrayList';
+function renderRefTabs(){
+  refTabs.innerHTML = '';
+  collectionOrder.forEach(name => {
+    const chip = document.createElement('button');
+    chip.className = 'chip' + (name === activeRefTab ? ' active' : '');
+    chip.textContent = name;
+    chip.addEventListener('click', () => { activeRefTab = name; renderRefTabs(); renderReference(); });
+    refTabs.appendChild(chip);
+  });
+}
+function renderReference(){
+  const c = collections[activeRefTab];
+  const tbody = document.getElementById('refMethodsBody');
+  tbody.innerHTML = c.methods.map(m => `
+    <tr data-name="${activeRefTab}">
+      <td><code>${m.sig}</code></td>
+      <td>${m.desc}</td>
+      <td>${m.o !== '—' ? m.o : '—'}</td>
+    </tr>
+  `).join('');
+  tbody.querySelectorAll('tr').forEach(tr => {
+    tr.addEventListener('click', () => openCollection(tr.getAttribute('data-name')));
+  });
+}
+
+const perfData = [
+  {name:'ArrayList', search:'O(n)', insert:'O(1) amortized', del:'O(n)', order:'Insertion', dup:'Yes'},
+  {name:'LinkedList', search:'O(n)', insert:'O(1) at ends', del:'O(1) at ends', order:'Insertion', dup:'Yes'},
+  {name:'HashSet', search:'O(1) avg', insert:'O(1) avg', del:'O(1) avg', order:'None guaranteed', dup:'No'},
+  {name:'TreeSet', search:'O(log n)', insert:'O(log n)', del:'O(log n)', order:'Sorted', dup:'No'},
+  {name:'HashMap', search:'O(1) avg', insert:'O(1) avg', del:'O(1) avg', order:'None guaranteed', dup:'Keys: No'},
+  {name:'TreeMap', search:'O(log n)', insert:'O(log n)', del:'O(log n)', order:'Sorted by key', dup:'Keys: No'},
+  {name:'Queue', search:'O(n)', insert:'O(1)', del:'O(1)', order:'FIFO', dup:'Yes'},
+  {name:'PriorityQueue', search:'O(n)', insert:'O(log n)', del:'O(log n)', order:'Priority', dup:'Yes'}
+];
+function perfTagClass(v){
+  if(v.includes('O(1)')) return 'o1';
+  if(v.includes('log')) return 'ologn';
+  return 'on';
+}
+function renderPerf(){
+  const tbody = document.getElementById('perfBody');
+  tbody.innerHTML = perfData.map(r => `
+    <tr data-name="${r.name}">
+      <td><strong>${r.name}</strong></td>
+      <td><span class="perf-tag ${perfTagClass(r.search)}">${r.search}</span></td>
+      <td><span class="perf-tag ${perfTagClass(r.insert)}">${r.insert}</span></td>
+      <td><span class="perf-tag ${perfTagClass(r.del)}">${r.del}</span></td>
+      <td>${r.order}</td>
+      <td>${r.dup}</td>
+    </tr>
+  `).join('');
+  tbody.querySelectorAll('tr').forEach(tr => {
+    tr.addEventListener('click', () => openCollection(tr.getAttribute('data-name')));
+  });
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+const resetBtn = document.getElementById('resetBtn');
+resetBtn.addEventListener('click', () => {
+  if(resetBtn.getAttribute('data-confirm') === '1'){
+    localStorage.removeItem('jcl_state');
+    state = defaultState();
+    vizData = { list:[], set:[], map:[], queue:[], pq:[] };
+    vizOps = 0;
+    initAll();
+    showToast('Progress reset.', 'info');
+    resetBtn.textContent = 'Reset Progress';
+    resetBtn.removeAttribute('data-confirm');
+  } else {
+    resetBtn.setAttribute('data-confirm','1');
+    resetBtn.textContent = 'Click again to confirm reset';
+    showToast('This will erase all XP and progress. Click again to confirm.', 'error');
+    setTimeout(() => {
+      if(resetBtn.getAttribute('data-confirm') === '1'){
+        resetBtn.removeAttribute('data-confirm');
+        resetBtn.textContent = 'Reset Progress';
+      }
+    }, 4000);
+  }
+});
+
+/* =========================================================
+   INIT
+========================================================= */
+function initAll(){
+  loadState();
+  renderXP();
+  renderProgress();
+  renderModules('');
+  renderFilters();
+  renderQuestions();
+  renderMilestones();
+  renderFeatures();
+  renderAchievements(false);
+  renderRefTabs();
+  renderReference();
+  renderPerf();
+  switchVizType(state.visualizer.type || 'ArrayList');
+  updateActiveNav();
+}
+initAll();
+
+});
+</script>
+</body>
+</html>
