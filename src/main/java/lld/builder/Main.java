@@ -17,7 +17,6 @@ public final class Main {
 
         Address address = builder
                 .setHouseNo("138")
-                .setRoadName("SS ROAD")
                 .setAddressLine1("Sodepur")
                 .setAddressLine2("Kolkata")
                 .build();
