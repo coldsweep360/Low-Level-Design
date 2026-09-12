@@ -47,7 +47,7 @@ public class BuilderExample {
     }
 
     public static void main(String[] args) {
-        UserProfile profile = new UserProfile.Builder("Asha", "asha@example.com").city("Pune").subscribeToNewsletter().build();
+        UserProfile profile = new UserProfile.Builder("Soham", "soham@example.com").city("Pune").subscribeToNewsletter().build();
         System.out.println(profile);
     }
 }
