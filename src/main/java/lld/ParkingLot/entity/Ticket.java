@@ -1,11 +1,8 @@
 package lld.ParkingLot.entity;
 
 import lld.ParkingLot.enums.TicketStatus;
-import lombok.Builder;
-
 import java.time.LocalDateTime;
 
-@Builder
 public class Ticket {
 
     private String ticketId;
@@ -14,6 +11,52 @@ public class Ticket {
     private LocalDateTime exitTime;
     private ParkingSpot parkingSpot;
     private TicketStatus ticketStatus;
+
+    private Ticket() {
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /** Fluent builder for creating tickets without requiring annotation processing. */
+    public static final class Builder {
+        private final Ticket ticket = new Ticket();
+
+        public Builder ticketId(String ticketId) {
+            ticket.ticketId = ticketId;
+            return this;
+        }
+
+        public Builder vehicle(Vehicle vehicle) {
+            ticket.vehicle = vehicle;
+            return this;
+        }
+
+        public Builder entryTime(LocalDateTime entryTime) {
+            ticket.entryTime = entryTime;
+            return this;
+        }
+
+        public Builder exitTime(LocalDateTime exitTime) {
+            ticket.exitTime = exitTime;
+            return this;
+        }
+
+        public Builder parkingSpot(ParkingSpot parkingSpot) {
+            ticket.parkingSpot = parkingSpot;
+            return this;
+        }
+
+        public Builder ticketStatus(TicketStatus ticketStatus) {
+            ticket.ticketStatus = ticketStatus;
+            return this;
+        }
+
+        public Ticket build() {
+            return ticket;
+        }
+    }
 
     public String getTicketId() {
         return ticketId;
