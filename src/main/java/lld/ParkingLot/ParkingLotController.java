@@ -153,6 +153,7 @@ public final class ParkingLotController {
                 "An unknown ticket must be rejected");
     }
 
+
     private void expectFailure(Runnable action, String message) {
         // Runnable represents "an action with no input and no return value".
         // The caller supplies that action with a lambda such as () -> gate.enter(...).
